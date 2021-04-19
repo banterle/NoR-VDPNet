@@ -9,7 +9,7 @@ DEPENDENCIES:
 REFERENCE:
 ==========
 
-If you use PICCANTE in your work, please cite it using this reference:
+If you use NoR-VDPNet in your work, please cite it using this reference:
 
 @inproceedings{Banterle+2020,
 
