@@ -1,9 +1,14 @@
 NoR-VDPNet
 ==========
-NoR-VDPNet is a deep-learning based metric trained on [HDR-VDP 2.2](http://hdrvdp.sourceforge.net/wiki/).
+NoR-VDPNet is a deep-learning based metric trained on [HDR-VDP](http://hdrvdp.sourceforge.net/wiki/).
+Traditionally, HDR-VDP requires a reference image, which is not possible to have in some scenarios.
+
+![HDR-VDP](images/hdrvdp.png?raw=true "HDR-VDP")
+
 NoR-VDPNet is a no-reference metric, so it requires a single image in order to asses its quality. 
+![NoR-VDPNet](images/our.png?raw=true "NoR-VDPNet")
+
 This can be trained on High Dynamic Range (HDR) images or Standard Dynamic Range (SDR) images (i.e., classic 8-bit images).
-Note that SDR images needs to be scene referred; i.e., you need to apply a monitor model and to obtain
 
 DEPENDENCIES:
 ==============
