@@ -30,6 +30,9 @@ you need to launch the file ```eval.py```; for example:
 python3 eval.py /home/user00/nor-vdpnet/trainings/ckpt/ /home/user00/images_to_be_tested/
 ```
 
+To get weights for HDR Compression and SDR distortions, please send an email at:
+```francesco [dot] banterle [at] isti [dot] cnr [dot] it```
+
 DATASET PREPARATION:
 ====================
 If you want to create your own dataset, as a first step you need to run [HDR-VDP](http://hdrvdp.sourceforge.net/wiki/)
