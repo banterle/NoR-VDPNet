@@ -12,7 +12,7 @@ Requires the PyTorch library along with Image, NumPy, SciPy, Matplotlib, glob2, 
 
 As the first step, you need to follow the [instructions for installing PyTorch](http://pytorch.org/).
 
-To install Image use: 
+To install dependencies, please use the following command: 
 ```bash
 pip3 install numpy, scipy, matplotlib, glob2, pandas, image, scikit-learn. 
 ```
