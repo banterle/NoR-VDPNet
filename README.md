@@ -69,30 +69,26 @@ as a variable ```image```.
 
 TRAINING:
 =========
-If you want to train our metric, you need to run ```train.py``` file. For example,
-if you want to traing it with HDR images for 1024 epochs, batch size 16, and learning rate 1e-4:
+If you want to train our metric, you need to run ```train.py``` file. This line shows how to
+train the metric for an HDR dataset in the folder ```/home/users00/data1``` for 1024 epochs with batch size 16
+and learning rate 1e-4:
 
 ```
 python3 train.py /home/users00/data1 --hdr -e 1024 --lr=1e-4 -b 16
 ```
-Note that the folder ```data1``` needs to contain the file ```data.csv``` and the folder ```stim```.
 
-Furthemore, if you want to traing it with SDR images for 1024 epochs, batch size 16, and learning rate 1e-4:
+Note that the folder ```data1``` needs to contain the file ```data.csv``` and the subfolder ```stim```.
+
+To train the metric for SDR datasets, the ```--hdr``` flag has to be removed:
 
 ```
 python3 train.py /home/users00/data2 -e 1024 --lr=1e-4 -b 16
 ```
+
 Note that the folder ```data2``` needs to contain the file ```data.csv``` and the folder ```stim```.
 
-Regarding SDR images with different distortions, we suggest these training parameters:
+In our paper, we trained SDR and HDR datasets with these paramters:
 
-```
-Learning Rate: 1e-4
-Batch Size: 16
-Epochs: 1024
-```
-
-Regarding HDR images that have been compressed using JPEG-like algorithms, we suggest these training parameters:
 ```
 Learning Rate: 1e-4
 Batch Size: 16
