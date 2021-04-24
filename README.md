@@ -38,12 +38,12 @@ To get weights for HDR Compression and SDR distortions, please send an email at:
 
 DATASET PREPARATION:
 ====================
-If you want to create your own dataset, as a first step you need to run [HDR-VDP](http://hdrvdp.sourceforge.net/wiki/)
-on all the images of your dataset using a pair of images <original, distorted> saving the Q value of HDR-VDP.
-Then, you need to keep as a dataset only the distorted images and their associated Q values.
+If you want to create your own dataset for a given distortion (note you can apply more distortions), 
+the first step is to apply such distortion to a set of input original images. Then, the second step is to run
+[HDR-VDP](http://hdrvdp.sourceforge.net/wiki/) on all pair of images <original, distorted> saving the Q value of HDR-VDP.
+At this point, you can discard the original images keeping only the distorted ones and the Q values output by HDR-VDP.
 
-You need to organize your files 
-using the following folder hierarchy:
+Files need to be organized using the following folder hierarchy:
 
 ```
 __dataset_folder/:
@@ -51,9 +51,8 @@ __dataset_folder/:
   |_______data.csv
 ```
 
-In the ```stim/``` folder, you need to place JPG/PNG/MAT files. In the ```data.csv``` file
-you need to list the files from ```stim/``` that you want to use in the training and
-the HDR-VDP 2.2's Quality value. See this ```data.csv``` file example:
+JPG/PNG/MAT files for distorted images go in the ```stim/``` folder, and the Q values and links to their
+respective image need to be stored in the ```data.csv``` file. Please have a look at this ```data.csv``` file example:
 
 ```
 Distorted,Q
