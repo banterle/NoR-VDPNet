@@ -1,6 +1,6 @@
 NoR-VDPNet
 ==========
-NoR-VDPNet is a deep-learning based metric trained on [HDR-VDP](http://hdrvdp.sourceforge.net/wiki/).
+NoR-VDPNet is a deep-learning based no-reference metric trained on [HDR-VDP](http://hdrvdp.sourceforge.net/wiki/).
 Traditionally, HDR-VDP requires a reference image, which is not possible to have in some scenarios.
 
 ![HDR-VDP](images/hdrvdp.png?raw=true "HDR-VDP")
