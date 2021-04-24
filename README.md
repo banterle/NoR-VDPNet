@@ -5,10 +5,10 @@ Traditionally, HDR-VDP requires a reference image, which is not possible to have
 
 ![HDR-VDP](images/hdrvdp.png?raw=true "HDR-VDP")
 
-NoR-VDPNet is a no-reference metric, so it requires a single image in order to asses its quality. 
+NoR-VDPNet is a no-reference metric, so it requires a single image in order to asses its quality. NoR-VDPNet can be trained on High Dynamic Range (HDR) images or Standard Dynamic Range (SDR) images (i.e., classic 8-bit images).
+
 ![NoR-VDPNet](images/our.png?raw=true "NoR-VDPNet")
 
-This can be trained on High Dynamic Range (HDR) images or Standard Dynamic Range (SDR) images (i.e., classic 8-bit images).
 
 DEPENDENCIES:
 ==============
