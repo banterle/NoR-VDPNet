@@ -7,7 +7,6 @@ import os
 import re
 import glob2
 import torch
-from torch.autograd import Variable as V
 
 from model import QNet
 
@@ -49,9 +48,7 @@ class QModel:
         
         with torch.no_grad():
              if torch.cuda.is_available():
-                stim = V(stim.cuda())
-             else:
-                stim = V(stim)
+                stim = stim.cuda()
         
              out = self.model(stim)
              out = out.data.cpu().numpy().squeeze()

@@ -10,7 +10,6 @@ import pandas as pd
 import torch
 import torch.nn.functional as F
 
-from torch.autograd import Variable as V
 from torch.optim import Adam
 from torch.utils.data import DataLoader
 from tqdm import tqdm, trange
@@ -27,11 +26,8 @@ def train(loader, model, optimizer, args):
     progress = tqdm(loader)
     for stim, q in progress:
         if torch.cuda.is_available():
-           stim = V(stim.cuda(), requires_grad=False)
-           q = V(q.cuda(), requires_grad=False)
-        else:
-           stim = V(stim, requires_grad=False)
-           q = V(q, requires_grad=False)
+           stim = stim.cuda()
+           q = q.cuda()
 
         q_hat = model(stim)
         
@@ -57,11 +53,8 @@ def evaluate(loader, model, args):
     for stim, q in progress:
         with torch.no_grad():
             if torch.cuda.is_available():
-                stim = V(stim.cuda())
-                q = V(q.cuda())
-            else:
-                stim = V(stim)
-                q = V(q)
+                stim = stim.cuda()
+                q = q.cuda()
         
             q_hat = model(stim)
             loss = F.mse_loss(q_hat, q)
