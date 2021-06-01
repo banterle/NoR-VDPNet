@@ -141,8 +141,7 @@ if __name__ == '__main__':
        start_epoch = ckpt['epoch']
        best_mse = ckpt['mse_val']
        start_epoch = ckpt['epoch']
-    
-    
+        
     for epoch in trange(start_epoch, args.epochs + 1):
         cur_loss = trainEval(train_loader, model, optimizer, args, True)
         val_loss = trainEval(train_loader, model, optimizer, args, False)
