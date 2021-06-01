@@ -16,21 +16,35 @@ from tqdm import tqdm, trange
 from util import plotGraph
 from dataset import split_data, HdrVdpDataset
 from model import QNet
+import glob2
+import re
+
 
 #training for a single epoch
-def train(loader, model, optimizer, args):
-    model.train()
-    
+def trainEval(loader, model, optimizer, args, bIsThisTrain = True):
+
+    if bIsThisTrain:
+        model.train()
+    else:
+        model.eval()
+
     total_loss = 0.0
     counter = 0
     progress = tqdm(loader)
     for stim, q in progress:
-        if torch.cuda.is_available():
-           stim = stim.cuda()
-           q = q.cuda()
-
-        q_hat = model(stim)
+        if bIsThisTrain:#train
+            if torch.cuda.is_available():
+                stim = stim.cuda()
+                q = q.cuda()
+            q_hat = model(stim)
+        else: #eval
+            with torch.no_grad():
+                if torch.cuda.is_available():
+                    stim = stim.cuda()
+                    q = q.cuda()
         
+                q_hat = model(stim)
+                
         loss = F.mse_loss(q_hat, q)
         optimizer.zero_grad()
         loss.backward()
@@ -43,29 +57,6 @@ def train(loader, model, optimizer, args):
 
     return total_loss / counter;
 
-#this function simply evaluate the model
-def evaluate(loader, model, args):
-    model.eval()
-    
-    total_loss = 0.0
-    counter = 0
-    progress = tqdm(loader)
-    for stim, q in progress:
-        with torch.no_grad():
-            if torch.cuda.is_available():
-                stim = stim.cuda()
-                q = q.cuda()
-        
-            q_hat = model(stim)
-            loss = F.mse_loss(q_hat, q)
-        
-            counter += 1
-            total_loss += loss.item()
-        
-            progress.set_postfix({'loss': total_loss / counter})
-     
-    return total_loss / counter
-
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Train Q regressor',
@@ -77,6 +68,8 @@ if __name__ == '__main__':
     parser.add_argument('-b', '--batch', type=int, default=8, help='Batch size')
     parser.add_argument('--lr', type=float, default=1e-4, help='Learning rate')
     parser.add_argument('-r', '--runs', type=str, default='runs/', help='Base dir for runs')
+    parser.add_argument('--resume', default=None, help='Path to initial weights')
+
     args = parser.parse_args()
     
     ### Prepare run dir
@@ -120,6 +113,8 @@ if __name__ == '__main__':
 
     #create the optmizer
     optimizer = Adam(model.parameters(), lr=args.lr)
+    scheduler = ReduceLROnPlateau(optimizer, patience=15, factor=0.5, verbose=True)
+
     log = pd.DataFrame()
     
     #training loop
@@ -127,10 +122,31 @@ if __name__ == '__main__':
     a_t = []
     a_v = []
     a_te = []
-    for epoch in trange(1, args.epochs + 1):
-        cur_loss = train(train_loader, model, optimizer, args)
-        val_loss = evaluate(val_loader, model, args)
-        test_loss = evaluate(test_loader, model, args)
+    
+    start_epoch = 1
+    if args.resume:
+       ckpt_dir_r = os.path.join(args.resume, 'ckpt')
+       ckpts = glob2.glob(os.path.join(ckpt_dir_r, '*.pth'))
+       assert ckpts, "No checkpoints to resume from!"
+    
+       def get_epoch(ckpt_url):
+           s = re.findall("ckpt_e(\d+).pth", ckpt_url)
+           epoch = int(s[0]) if s else -1
+           return epoch, ckpt_url
+    
+       start_epoch, ckpt = max(get_epoch(c) for c in ckpts)
+       print('Checkpoint:', ckpt)
+       ckpt = torch.load(ckpt)
+       model.load_state_dict(ckpt['model'])
+       start_epoch = ckpt['epoch']
+       best_mse = ckpt['mse_val']
+       start_epoch = ckpt['epoch']
+    
+    
+    for epoch in trange(start_epoch, args.epochs + 1):
+        cur_loss = trainEval(train_loader, model, optimizer, args, True)
+        val_loss = trainEval(train_loader, model, optimizer, args, False)
+        test_loss = trainEval(train_loader, model, optimizer, args, False)
        
         metrics = {'epoch': epoch}
         metrics['mse_train'] = cur_loss
@@ -156,3 +172,5 @@ if __name__ == '__main__':
                 'model': model.state_dict(),
                 'optimizer': optimizer.state_dict()
             }, ckpt)
+
+        scheduler.step(val_loss)
