@@ -147,8 +147,8 @@ if __name__ == '__main__':
         
     for epoch in trange(start_epoch, args.epochs + 1):
         cur_loss = trainEval(train_loader, model, optimizer, args, True)
-        val_loss = trainEval(train_loader, model, optimizer, args, False)
-        test_loss = trainEval(train_loader, model, optimizer, args, False)
+        val_loss = trainEval(val_loader, model, optimizer, args, False)
+        test_loss = trainEval(test_loader, model, optimizer, args, False)
        
         metrics = {'epoch': epoch}
         metrics['mse_train'] = cur_loss
