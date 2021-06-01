@@ -15,6 +15,7 @@ from torch.utils.data import DataLoader
 from tqdm import tqdm, trange
 from util import plotGraph
 from dataset import split_data, HdrVdpDataset
+from torch.optim.lr_scheduler import ReduceLROnPlateau
 from model import QNet
 import glob2
 import re
