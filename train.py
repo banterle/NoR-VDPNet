@@ -22,9 +22,9 @@ import re
 
 
 #training for a single epoch
-def trainEval(loader, model, optimizer, args, bIsThisTrain = True):
+def trainEval(loader, model, optimizer, args, bTrain = True):
 
-    if bIsThisTrain:
+    if bTrain:
         model.train()
     else:
         model.eval()
@@ -33,7 +33,7 @@ def trainEval(loader, model, optimizer, args, bIsThisTrain = True):
     counter = 0
     progress = tqdm(loader)
     for stim, q in progress:
-        if bIsThisTrain:#train
+        if bTrain:#train
             if torch.cuda.is_available():
                 stim = stim.cuda()
                 q = q.cuda()
@@ -47,9 +47,11 @@ def trainEval(loader, model, optimizer, args, bIsThisTrain = True):
                 q_hat = model(stim)
                 
         loss = F.mse_loss(q_hat, q)
-        optimizer.zero_grad()
-        loss.backward()
-        optimizer.step()
+        
+        if bTrain:
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
         
         total_loss += loss.item()
         counter += 1
