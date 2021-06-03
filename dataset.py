@@ -33,7 +33,6 @@ def split_data(data_dir, random_state=42, group=None, bPrecompGroup=True):
            n = len(data)
 
            for i in range(0, n):
-               c += 1
                tmp0 = data.iloc[i].Distorted
                tmp1 = data.iloc[i].Q
                

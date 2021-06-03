@@ -66,15 +66,16 @@ if __name__ == '__main__':
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('data', type=str, help='Path to data dir')
     parser.add_argument('-g', '--group', type=int, help='grouping factor for augmented dataset')
-    parser.add_argument('-gp', '--groupprecomp', type=bool, default = True, help='grouping type')
+    parser.add_argument('-gp', '--groupprecomp', type=int, default = 1, help='grouping type')
     parser.add_argument('-e', '--epochs', type=int, default=30, help='Number of training epochs')
     parser.add_argument('-b', '--batch', type=int, default=8, help='Batch size')
     parser.add_argument('--lr', type=float, default=1e-4, help='Learning rate')
     parser.add_argument('-r', '--runs', type=str, default='runs/', help='Base dir for runs')
     parser.add_argument('--resume', default=None, help='Path to initial weights')
-
-    args = parser.parse_args()
     
+    args = parser.parse_args()
+
+    args.groupprecomp = (args.groupprecomp == 1)
     ### Prepare run dir
     params = vars(args)
     params['dataset'] = os.path.basename(os.path.normpath(args.data))
