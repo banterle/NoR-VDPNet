@@ -6,7 +6,7 @@
 import os
 import pandas as pd
 import torch
-from util import load_image
+from util import load_image, dataAugmentation_np
 from torch.utils.data import Dataset
 from sklearn.model_selection import train_test_split
 from torchvision.transforms.functional import to_tensor
@@ -73,9 +73,10 @@ def split_data(data_dir, random_state=42, group=None, bPrecompGroup=True):
     return train, val, test
 
 class HdrVdpDataset(Dataset):
-    def __init__(self, data, base_dir, bPrecompGroup=True):
+    def __init__(self, data, base_dir, group = None, bPrecompGroup=True):
         self.data = data
         self.base_dir = base_dir
+        self.group = group
         self.bPrecompGroup = bPrecompGroup
 
     def __getitem__(self, index):
@@ -85,9 +86,10 @@ class HdrVdpDataset(Dataset):
 
         #print(full_name)
         stim = load_image(full_name)
-        if self.bPrecompGroup == False:
-           print('todo')
+        if group != None and (self.bPrecompGroup == False):
+            stim = dataAugmentation_np(stim, index % self.group)
 
+        stim = to_tensor(stim.astype('float32'))
         q = torch.FloatTensor([sample.Q / 100.0])
 
         return stim, q

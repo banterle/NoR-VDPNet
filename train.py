@@ -99,13 +99,13 @@ if __name__ == '__main__':
     test_data.to_csv(os.path.join(run_dir, "test.csv"), ',')
 
     #create the loader for the training set
-    train_data = HdrVdpDataset(train_data, args.data, bPrecompGroup = args.groupprecomp)
+    train_data = HdrVdpDataset(train_data, args.data, args.group, bPrecompGroup = args.groupprecomp)
     train_loader = DataLoader(train_data, shuffle=True,  batch_size=args.batch, num_workers=8, pin_memory=True)
     #create the loader for the validation set
-    val_data = HdrVdpDataset(val_data, args.data, bPrecompGroup = args.groupprecomp)
+    val_data = HdrVdpDataset(val_data, args.data, args.group, bPrecompGroup = args.groupprecomp)
     val_loader = DataLoader(val_data, shuffle=False, batch_size=args.batch, num_workers=8, pin_memory=True)
     #create the loader for the testing set
-    test_data = HdrVdpDataset(test_data, args.data, bPrecompGroup = args.groupprecomp)
+    test_data = HdrVdpDataset(test_data, args.data, args.group, bPrecompGroup = args.groupprecomp)
     test_loader = DataLoader(test_data, shuffle=False, batch_size=args.batch, num_workers=8, pin_memory=True)
 
     #create the model
@@ -162,8 +162,8 @@ if __name__ == '__main__':
         a_te.append(test_loss)
 
         if best_mse is None or (val_loss < best_mse):
-            plotGraph(a_t, a_v, a_te, '.')
-            plotGraph(a_t, a_v, a_te, run_dir)
+            plotGraph(a_t, a_v, a_te, '.', run_name)
+            plotGraph(a_t, a_v, a_te, run_dir, run_name)
             best_mse = val_loss
             ckpt = os.path.join(ckpt_dir, 'ckpt_e{}.pth'.format(epoch))
             torch.save({
