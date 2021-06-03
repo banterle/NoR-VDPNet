@@ -86,10 +86,10 @@ class HdrVdpDataset(Dataset):
 
         #print(full_name)
         stim = load_image(full_name)
-        if group != None and (self.bPrecompGroup == False):
+        if self.group != None and (self.bPrecompGroup == False):
             stim = dataAugmentation_np(stim, index % self.group)
 
-        stim = to_tensor(stim.astype('float32'))
+        stim = to_tensor(stim)
         q = torch.FloatTensor([sample.Q / 100.0])
 
         return stim, q

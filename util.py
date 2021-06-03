@@ -15,8 +15,11 @@ import skimage.transform as st
 #read an 8-bit image
 def read_img(fname, grayscale=True):
     img = Image.open(fname)
-    out = img.convert('L') if grayscale else img.convert('RGB')
-    return out
+    img = img.convert('L') if grayscale else img.convert('RGB')
+    img_np = np.array(img);
+    img_np = img_np.astype('float32')
+    img_np /= 255.0
+    return img_np
 
 #read an 8-bit/32-bit image in MATLAB format
 def read_mat(fname,  grayscale=True, log_range=True):
@@ -27,6 +30,8 @@ def read_mat(fname,  grayscale=True, log_range=True):
 
     if log_range:  # perform log10(1 + image)
         x = np.log10(x + 1.0)
+
+    x = x.astype('float32')
     return x
 
 #read an image
