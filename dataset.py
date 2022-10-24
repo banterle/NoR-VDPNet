@@ -9,15 +9,14 @@ import torch
 from util import load_image, dataAugmentation_np
 from torch.utils.data import Dataset
 from sklearn.model_selection import train_test_split
-from torchvision.transforms.functional import to_tensor
 import numpy as np
 
+#
 def checkFile(base_dir, fn):
-    stim_folder = os.path.join(base_dir, 'stim')
-    full_name = os.path.join(stim_folder, fn)
-
+    full_name = os.path.join(base_dir, fn)
     return os.path.isfile(full_name)
 
+#
 def split_data(data_dir, random_state=42, group=None, bPrecompGroup=True):
 
     data = os.path.join(data_dir, 'data.csv')
@@ -72,24 +71,31 @@ def split_data(data_dir, random_state=42, group=None, bPrecompGroup=True):
     return train, val, test
 
 class HdrVdpDataset(Dataset):
-    def __init__(self, data, base_dir, group = None, bPrecompGroup=True):
+    def __init__(self, data, base_dir, group = None, bPrecompGroup=True, bScaling = False):
         self.data = data
         self.base_dir = base_dir
         self.group = group
         self.bPrecompGroup = bPrecompGroup
+        self.bScaling = bScaling
+        
+        if self.bScaling:
+            print('Scaling is active')
+        else:
+            print('Scaling is disabled')
 
     def __getitem__(self, index):
         sample = self.data.iloc[index]
-        stim_folder = os.path.join(self.base_dir, 'stim')
-        full_name = os.path.join(stim_folder, sample.Distorted)
+        full_name = os.path.join(self.base_dir, sample.Distorted)
 
         #print(full_name)
         stim = load_image(full_name)
         if self.group != None and (self.bPrecompGroup == False):
             stim = dataAugmentation_np(stim, index % self.group)
-
-        stim = to_tensor(stim)
-        q = torch.FloatTensor([sample.Q / 100.0])
+        
+        if self.bScaling:
+            q = torch.FloatTensor([sample.Q / 100.0])
+        else:
+            q = torch.FloatTensor([sample.Q])
 
         return stim, q
 

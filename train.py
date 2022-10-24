@@ -67,7 +67,8 @@ if __name__ == '__main__':
     parser.add_argument('data', type=str, help='Path to data dir')
     parser.add_argument('-g', '--group', type=int, help='grouping factor for augmented dataset')
     parser.add_argument('-gp', '--groupprecomp', type=int, default = 1, help='grouping type')
-    parser.add_argument('-e', '--epochs', type=int, default=30, help='Number of training epochs')
+    parser.add_argument('-e', '--epochs', type=int, default=1024, help='Number of training epochs')
+    parser.add_argument('-s', '--scaling', type=bool, default=False, help='scaling')
     parser.add_argument('-b', '--batch', type=int, default=8, help='Batch size')
     parser.add_argument('--lr', type=float, default=1e-4, help='Learning rate')
     parser.add_argument('-r', '--runs', type=str, default='runs/', help='Base dir for runs')
@@ -100,20 +101,19 @@ if __name__ == '__main__':
     test_data.to_csv(os.path.join(run_dir, "test.csv"), ',')
 
     #create the loader for the training set
-    train_data = HdrVdpDataset(train_data, args.data, args.group, bPrecompGroup = args.groupprecomp)
+    train_data = HdrVdpDataset(train_data, args.data, args.group, bPrecompGroup = args.groupprecomp, bScaling = args.scaling)
     train_loader = DataLoader(train_data, shuffle=True,  batch_size=args.batch, num_workers=8, pin_memory=True)
     #create the loader for the validation set
-    val_data = HdrVdpDataset(val_data, args.data, args.group, bPrecompGroup = args.groupprecomp)
+    val_data = HdrVdpDataset(val_data, args.data, args.group, bPrecompGroup = args.groupprecomp, bScaling = args.scaling)
     val_loader = DataLoader(val_data, shuffle=False, batch_size=args.batch, num_workers=8, pin_memory=True)
     #create the loader for the testing set
-    test_data = HdrVdpDataset(test_data, args.data, args.group, bPrecompGroup = args.groupprecomp)
+    test_data = HdrVdpDataset(test_data, args.data, args.group, bPrecompGroup = args.groupprecomp, bScaling = args.scaling)
     test_loader = DataLoader(test_data, shuffle=False, batch_size=args.batch, num_workers=8, pin_memory=True)
 
     #create the model
+    model = QNet()
     if(torch.cuda.is_available()):
-        model = QNet().cuda()
-    else:
-        model = QNet()
+        model = model.cuda()        
 
     #create the optmizer
     optimizer = Adam(model.parameters(), lr=args.lr)

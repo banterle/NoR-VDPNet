@@ -6,11 +6,13 @@
 import os
 import matplotlib.pyplot as plt
 import torch
-from torchvision.transforms.functional import to_tensor
 from scipy.io import loadmat
 from PIL import Image
 import numpy as np
 import skimage.transform as st
+from torchvision.transforms.functional import to_tensor
+
+import cv2
 
 #read an 8-bit image
 def read_img(fname, grayscale=True):
@@ -19,28 +21,48 @@ def read_img(fname, grayscale=True):
     img_np = np.array(img);
     img_np = img_np.astype('float32')
     img_np /= 255.0
-    return img_np
+    return torch.FloatTensor(img_np)
+
+#read a HDR image
+def read_hdr(fname,  grayscale=True, log_range=True):
+    img = cv2.imread(fname, cv2.IMREAD_ANYCOLOR | cv2.IMREAD_ANYDEPTH)
+    x = np.array(img, dtype=np.float)
+    if grayscale: #luminance
+        x = 0.2126 * x[:,:,2] + 0.7152 * x[:,:,1] + 0.0722 * x[:,:,0]
+        
+    z = torch.FloatTensor(x)
+    z = z.unsqueeze(0)
+    
+    if log_range:
+        z = torch.log10(z + 1.0)
+        
+    return z
 
 #read an 8-bit/32-bit image in MATLAB format
 def read_mat(fname,  grayscale=True, log_range=True):
     x = loadmat(fname, verify_compressed_data_integrity=False)['image']
     
     if len(x.shape) == 3:
-        x = (x[:,:,0] + x[:,:,1] + x[:,:,2]) / 3.0
+        x = 0.2126 * x[:,:,0] + 0.7152 * x[:,:,1] + 0.0722 * x[:,:,2]
 
     if log_range:  # perform log10(1 + image)
         x = np.log10(x + 1.0)
 
     x = x.astype('float32')
-    return x
+    return torch.FloatTensor(x)
 
 #read an image
 def load_image(fname,  grayscale=True, log_range=True):
     filename, ext = os.path.splitext(fname)
+    ext = ext.lower()
+    
     if ext == '.mat':
        return read_mat(fname, grayscale, log_range)
     else:
-       return read_img(fname, grayscale)
+        if (ext == '.exr') or (ext == '.hdr'):
+            return read_hdr(fname, grayscale, log_range)
+        else:
+            return read_img(fname, grayscale)
 
 #data augmentation
 def dataAugmentation_np(img, j):
