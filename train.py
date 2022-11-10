@@ -58,7 +58,6 @@ def eval(loader, model, optimizer, args):
     progress = tqdm(loader)
 
     for stim, q in progress:
-        print(q)
         with torch.no_grad():
             if torch.cuda.is_available():
                 stim = stim.cuda()
