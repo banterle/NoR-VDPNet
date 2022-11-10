@@ -21,41 +21,54 @@ import glob2
 import re
 
 
-#training for a single epoch
-def trainEval(loader, model, optimizer, args, bTrain = True):
-
-    if bTrain:
-        model.train()
-    else:
-        model.eval()
+#traing for a single epoch
+def train(loader, model, optimizer, args):
+    model.train()
 
     total_loss = 0.0
     counter = 0
     progress = tqdm(loader)
+
+    optimizer.zero_grad()
+
     for stim, q in progress:
-        if bTrain:#train
-            if torch.cuda.is_available():
-                stim = stim.cuda()
-                q = q.cuda()
-            q_hat = model(stim)
-        else: #eval
-            with torch.no_grad():
-                if torch.cuda.is_available():
-                    stim = stim.cuda()
-                    q = q.cuda()
+        if torch.cuda.is_available():
+            stim = stim.cuda()
+            q = q.cuda()
+        q_hat = model(stim)
+        loss = F.l1_loss(q_hat, q)
         
-                q_hat = model(stim)
-                
-        loss = F.mse_loss(q_hat, q)
-        
-        if bTrain:
-            optimizer.zero_grad()
-            loss.backward()
-            optimizer.step()
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
         
         total_loss += loss.item()
         counter += 1
         
+        progress.set_postfix({'loss': total_loss / counter})
+
+    return total_loss / counter;
+    
+#evaluate for a single epoch
+def eval(loader, model, optimizer, args):
+    model.eval()
+
+    total_loss = 0.0
+    counter = 0
+    progress = tqdm(loader)
+
+    for stim, q in progress:
+        print(q)
+        with torch.no_grad():
+            if torch.cuda.is_available():
+                stim = stim.cuda()
+                q = q.cuda()
+            q_hat = model(stim)
+            loss = F.l1_loss(q_hat, q)
+            
+            total_loss += loss.item()
+        counter += 1
+            
         progress.set_postfix({'loss': total_loss / counter})
 
     return total_loss / counter;
@@ -147,9 +160,9 @@ if __name__ == '__main__':
        start_epoch = ckpt['epoch']
         
     for epoch in trange(start_epoch, args.epochs + 1):
-        cur_loss = trainEval(train_loader, model, optimizer, args, True)
-        val_loss = trainEval(val_loader, model, optimizer, args, False)
-        test_loss = trainEval(test_loader, model, optimizer, args, False)
+        cur_loss = train(train_loader, model, optimizer, args)
+        val_loss = eval(val_loader, model, optimizer, args)
+        test_loss = eval(test_loader, model, optimizer, args)
        
         metrics = {'epoch': epoch}
         metrics['mse_train'] = cur_loss

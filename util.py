@@ -4,6 +4,7 @@
 #
 
 import os
+import sys
 import matplotlib.pyplot as plt
 import torch
 from scipy.io import loadmat
@@ -11,7 +12,7 @@ from PIL import Image
 import numpy as np
 import skimage.transform as st
 from torchvision.transforms.functional import to_tensor
-
+import torchvision.transforms as T
 import cv2
 
 #read an 8-bit image
@@ -21,13 +22,18 @@ def read_img(fname, grayscale=True):
     img_np = np.array(img);
     img_np = img_np.astype('float32')
     img_np /= 255.0
-    return torch.FloatTensor(img_np)
+    img_torch = torch.FloatTensor(img_np)
+    img_torch = img_torch.unsqueeze(0)
+    #c = T.ToPILImage()
+    #c(img_torch).save('test.png')
+    return img_torch
 
 #read a HDR image
 def read_hdr(fname,  grayscale=True, log_range=True):
     img = cv2.imread(fname, cv2.IMREAD_ANYCOLOR | cv2.IMREAD_ANYDEPTH)
     x = np.array(img, dtype=np.float)
-    if grayscale: #luminance
+    
+    if grayscale: #REC709 luminance
         x = 0.2126 * x[:,:,2] + 0.7152 * x[:,:,1] + 0.0722 * x[:,:,0]
         
     z = torch.FloatTensor(x)
