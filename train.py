@@ -6,7 +6,8 @@
 import os
 import argparse
 import pandas as pd
-
+import matplotlib.pyplot as plt
+import seaborn as sns
 import torch
 import torch.nn.functional as F
 
@@ -36,7 +37,7 @@ def train(loader, model, optimizer, args):
             stim = stim.cuda()
             q = q.cuda()
         q_hat = model(stim)
-        loss = F.l1_loss(q_hat, q)
+        loss = F.mse_loss(q_hat, q)
         
         optimizer.zero_grad()
         loss.backward()
@@ -56,21 +57,30 @@ def eval(loader, model, optimizer, args):
     total_loss = 0.0
     counter = 0
     progress = tqdm(loader)
-
+    
+    targets = []
+    predictions = []
+    
     for stim, q in progress:
         with torch.no_grad():
             if torch.cuda.is_available():
                 stim = stim.cuda()
                 q = q.cuda()
             q_hat = model(stim)
-            loss = F.l1_loss(q_hat, q)
+            loss = F.mse_loss(q_hat, q)
             
             total_loss += loss.item()
+                        
+        targets.append(q)
+        predictions.append(q_hat)
         counter += 1
             
         progress.set_postfix({'loss': total_loss / counter})
-
-    return total_loss / counter;
+        
+    targets = torch.cat(targets, 0).squeeze()
+    predictions = torch.cat(predictions, 0).squeeze()
+    
+    return (total_loss / counter), targets, predictions
 
 
 if __name__ == '__main__':
@@ -81,7 +91,7 @@ if __name__ == '__main__':
     parser.add_argument('-gp', '--groupprecomp', type=int, default = 1, help='grouping type')
     parser.add_argument('-e', '--epochs', type=int, default=1024, help='Number of training epochs')
     parser.add_argument('-s', '--scaling', type=bool, default=False, help='scaling')
-    parser.add_argument('-b', '--batch', type=int, default=8, help='Batch size')
+    parser.add_argument('-b', '--batch', type=int, default=4, help='Batch size')
     parser.add_argument('--lr', type=float, default=1e-4, help='Learning rate')
     parser.add_argument('-r', '--runs', type=str, default='runs/', help='Base dir for runs')
     parser.add_argument('--resume', default=None, help='Path to initial weights')
@@ -120,7 +130,7 @@ if __name__ == '__main__':
     val_loader = DataLoader(val_data, shuffle=False, batch_size=args.batch, num_workers=8, pin_memory=True)
     #create the loader for the testing set
     test_data = HdrVdpDataset(test_data, args.data, args.group, bPrecompGroup = args.groupprecomp, bScaling = args.scaling)
-    test_loader = DataLoader(test_data, shuffle=False, batch_size=args.batch, num_workers=8, pin_memory=True)
+    test_loader = DataLoader(test_data, shuffle=False, batch_size=1, num_workers=8, pin_memory=True)
 
     #create the model
     model = QNet()
@@ -160,8 +170,8 @@ if __name__ == '__main__':
         
     for epoch in trange(start_epoch, args.epochs + 1):
         cur_loss = train(train_loader, model, optimizer, args)
-        val_loss = eval(val_loader, model, optimizer, args)
-        test_loss = eval(test_loader, model, optimizer, args)
+        val_loss, targets, predictions = eval(val_loader, model, optimizer, args)
+        test_loss, targets, predictions = eval(test_loader, model, optimizer, args)
        
         metrics = {'epoch': epoch}
         metrics['mse_train'] = cur_loss
@@ -175,6 +185,14 @@ if __name__ == '__main__':
         a_te.append(test_loss)
 
         if best_mse is None or (val_loss < best_mse):
+            delta = (targets - predictions)
+            errors = delta.cpu().numpy()
+            pd.DataFrame(errors).to_csv(os.path.join(run_dir, 'errors_test.csv'))
+            pd.DataFrame(errors).to_csv('errors_test.csv')
+
+            #sns.distplot(errors, kde=True, rug=True)
+            #plt.savefig('hist_errors_test.png')
+
             plotGraph(a_t, a_v, a_te, '.', run_name)
             plotGraph(a_t, a_v, a_te, run_dir, run_name)
             best_mse = val_loss
