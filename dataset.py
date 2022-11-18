@@ -10,12 +10,34 @@ from util import load_image, dataAugmentation_np
 from torch.utils.data import Dataset
 from sklearn.model_selection import train_test_split
 import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
 
+
+#
+#
 #
 def checkFile(base_dir, fn):
     full_name = os.path.join(base_dir, fn)
     return os.path.isfile(full_name)
 
+#
+#
+#
+def read_data_split(data_dir, group=None, bPrecompGroup=True):
+    train = pd.read_csv(os.path.join(data_dir, 'train.csv'))
+    train.sort_values(by=['Distorted'], inplace=True)
+
+    val = pd.read_csv(os.path.join(data_dir, 'val.csv'))
+    val.sort_values(by=['Distorted'], inplace=True)
+
+    test = pd.read_csv(os.path.join(data_dir, 'test.csv'))
+    test.sort_values(by=['Distorted'], inplace=True)
+
+    return train, val, test
+
+#
+#
 #
 def split_data(data_dir, random_state=42, group=None, bPrecompGroup=True):
 
@@ -27,9 +49,9 @@ def split_data(data_dir, random_state=42, group=None, bPrecompGroup=True):
 
     if group:
         print('Grouping')
+        n = len(data)
         if bPrecompGroup == False:
            print('Groups transformations are online')
-           n = len(data)
 
            for i in range(0, n):
                tmp0 = data.iloc[i].Distorted
@@ -42,6 +64,13 @@ def split_data(data_dir, random_state=42, group=None, bPrecompGroup=True):
            data = pd.DataFrame(data=d)
         else:
            print('Groups are precomputed')
+           for i in range(0, n):
+               tmp0 = data.iloc[i].Distorted
+               tmp1 = data.iloc[i].Q
+               img_fn.append(tmp0)
+               q_val.append(tmp1)
+           d = {'Distorted': img_fn, 'Q': q_val}
+           data = pd.DataFrame(data=d)
         data = [data[i:i + group] for i in range(0, len(data), group)]
     else:
         n = len(data)
@@ -54,10 +83,15 @@ def split_data(data_dir, random_state=42, group=None, bPrecompGroup=True):
                 q_val.append(tmp1)
             else:
                 print(tmp0)
+                
         d = {'Distorted': img_fn, 'Q': q_val}
         data = pd.DataFrame(data=d)
         
         print('No grouping')
+
+    plt.clf()
+    sns.distplot(q_val, kde=True, rug=True, bins=100)
+    plt.savefig('hist_q.png')
 
     #split data into 80% train, 10% validation, and 10% test
     train, valtest = train_test_split(data, test_size=0.2, random_state=random_state)

@@ -30,13 +30,12 @@ def train(loader, model, optimizer, args):
     counter = 0
     progress = tqdm(loader)
 
-    optimizer.zero_grad()
-
     for stim, q in progress:
         if torch.cuda.is_available():
             stim = stim.cuda()
             q = q.cuda()
         q_hat = model(stim)
+        
         loss = F.mse_loss(q_hat, q)
         
         optimizer.zero_grad()
@@ -91,7 +90,7 @@ if __name__ == '__main__':
     parser.add_argument('-gp', '--groupprecomp', type=int, default = 1, help='grouping type')
     parser.add_argument('-e', '--epochs', type=int, default=1024, help='Number of training epochs')
     parser.add_argument('-s', '--scaling', type=bool, default=False, help='scaling')
-    parser.add_argument('-b', '--batch', type=int, default=4, help='Batch size')
+    parser.add_argument('-b', '--batch', type=int, default=1, help='Batch size')
     parser.add_argument('--lr', type=float, default=1e-4, help='Learning rate')
     parser.add_argument('-r', '--runs', type=str, default='runs/', help='Base dir for runs')
     parser.add_argument('--resume', default=None, help='Path to initial weights')
@@ -190,8 +189,10 @@ if __name__ == '__main__':
             pd.DataFrame(errors).to_csv(os.path.join(run_dir, 'errors_test.csv'))
             pd.DataFrame(errors).to_csv('errors_test.csv')
 
-            #sns.distplot(errors, kde=True, rug=True)
-            #plt.savefig('hist_errors_test.png')
+            plt.clf()
+            sns.distplot(errors, kde=True, rug=True)
+            plt.savefig(os.path.join(run_dir, 'hist_errors_test.png'))
+            plt.savefig('hist_errors_test.png')
 
             plotGraph(a_t, a_v, a_te, '.', run_name)
             plotGraph(a_t, a_v, a_te, run_dir, run_name)
