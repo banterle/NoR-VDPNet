@@ -14,8 +14,8 @@ import torch.nn.functional as F
 from torch.optim import Adam
 from torch.utils.data import DataLoader
 from tqdm import tqdm, trange
-from util import plotGraph
-from dataset import split_data, HdrVdpDataset
+from util import torchDataAugmentation, plotGraph
+from dataset import split_data, read_data_split, HdrVdpDataset
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 from model import QNet
 import glob2
@@ -26,6 +26,10 @@ import re
 def train(loader, model, optimizer, args):
     model.train()
 
+    nAffine = 1
+    if args.gruoupAffine:
+        nAffine = 7
+
     total_loss = 0.0
     counter = 0
     progress = tqdm(loader)
@@ -34,16 +38,23 @@ def train(loader, model, optimizer, args):
         if torch.cuda.is_available():
             stim = stim.cuda()
             q = q.cuda()
-        q_hat = model(stim)
+            
+        for j in range(0, nAffine):
+            if nAffine > 0:
+                stim_j = torchDataAugmentation(stim, j)
+            else:
+                stim_j = stim
+                
+            q_hat = model(stim_j)
         
-        loss = F.mse_loss(q_hat, q)
+            loss = F.mse_loss(q_hat, q)
         
-        optimizer.zero_grad()
-        loss.backward()
-        optimizer.step()
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
         
-        total_loss += loss.item()
-        counter += 1
+            total_loss += loss.item()
+            counter += 1
         
         progress.set_postfix({'loss': total_loss / counter})
 
@@ -51,6 +62,10 @@ def train(loader, model, optimizer, args):
     
 #evaluate for a single epoch
 def eval(loader, model, optimizer, args):
+    nAffine = 1
+    if args.gruoupAffine:
+        nAffine = 7
+
     model.eval()
 
     total_loss = 0.0
@@ -65,16 +80,23 @@ def eval(loader, model, optimizer, args):
             if torch.cuda.is_available():
                 stim = stim.cuda()
                 q = q.cuda()
-            q_hat = model(stim)
-            loss = F.mse_loss(q_hat, q)
+
+            for j in range(0, nAffine):
+                if nAffine > 0:
+                    stim_j = torchDataAugmentation(stim, j)
+                else:
+                    stim_j = stim
+
+                q_hat = model(stim_j)
+                loss = F.mse_loss(q_hat, q)
             
-            total_loss += loss.item()
+                total_loss += loss.item()
                         
-        targets.append(q)
-        predictions.append(q_hat)
-        counter += 1
+                targets.append(q)
+                predictions.append(q_hat)
+                counter += 1
             
-        progress.set_postfix({'loss': total_loss / counter})
+                progress.set_postfix({'loss': total_loss / counter})
         
     targets = torch.cat(targets, 0).squeeze()
     predictions = torch.cat(predictions, 0).squeeze()
@@ -87,7 +109,8 @@ if __name__ == '__main__':
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('data', type=str, help='Path to data dir')
     parser.add_argument('-g', '--group', type=int, help='grouping factor for augmented dataset')
-    parser.add_argument('-gp', '--groupprecomp', type=int, default = 1, help='grouping type')
+    parser.add_argument('-gp', '--groupprecomp', type=int, default = 0, help='grouping type')
+    parser.add_argument('-gpa', '--gruoupAffine', type=int, default = 0, help='affine transformation')
     parser.add_argument('-e', '--epochs', type=int, default=1024, help='Number of training epochs')
     parser.add_argument('-s', '--scaling', type=bool, default=False, help='scaling')
     parser.add_argument('-b', '--batch', type=int, default=1, help='Batch size')
@@ -98,6 +121,13 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     args.groupprecomp = (args.groupprecomp == 1)
+    args.gruoupAffine = (args.gruoupAffine == 1)
+    
+    if args.gruoupAffine and (args.group != None) and (args.groupprecomp == False):
+        args.gruoupAffine = False
+        
+    print(args.gruoupAffine)
+    
     ### Prepare run dir
     params = vars(args)
     params['dataset'] = os.path.basename(os.path.normpath(args.data))
@@ -115,11 +145,19 @@ if __name__ == '__main__':
     pd.DataFrame(params, index=[0]).to_csv(param_file, index=False)
     
     ### Load Data
-    train_data, val_data, test_data = split_data(args.data, group=args.group, bPrecompGroup = args.groupprecomp)
-
-    train_data.to_csv(os.path.join(run_dir, "train.csv"), ',')
-    val_data.to_csv(os.path.join(run_dir, "val.csv"), ',')
-    test_data.to_csv(os.path.join(run_dir, "test.csv"), ',')
+    if os.path.exists(os.path.join(args.data, 'train.csv')):
+        print('Precomputed train/validation/test')
+        train_data, val_data, test_data = read_data_split(args.data)
+    else:
+        print('Computing train/validation/test')
+        train_data, val_data, test_data = split_data(args.data, group=args.group, bPrecompGroup = args.groupprecomp)
+        train_data.to_csv(os.path.join(args.data, "train.csv"), ',')
+        val_data.to_csv(os.path.join(args.data, "val.csv"), ',')
+        test_data.to_csv(os.path.join(args.data, "test.csv"), ',')
+        
+        train_data.to_csv(os.path.join(run_dir, "train.csv"), ',')
+        val_data.to_csv(os.path.join(run_dir, "val.csv"), ',')
+        test_data.to_csv(os.path.join(run_dir, "test.csv"), ',')
 
     #create the loader for the training set
     train_data = HdrVdpDataset(train_data, args.data, args.group, bPrecompGroup = args.groupprecomp, bScaling = args.scaling)
