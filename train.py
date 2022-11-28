@@ -176,7 +176,7 @@ if __name__ == '__main__':
 
     #create the optmizer
     optimizer = Adam(model.parameters(), lr=args.lr)
-    scheduler = ReduceLROnPlateau(optimizer, patience=15, factor=0.5, verbose=True)
+    scheduler = ReduceLROnPlateau(optimizer, patience=5, factor=0.5, verbose=True)
 
     log = pd.DataFrame()
     
