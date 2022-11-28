@@ -63,14 +63,8 @@ def split_data(data_dir, random_state=42, group=None, bPrecompGroup=True):
            d = {'Distorted': img_fn, 'Q': q_val}
            data = pd.DataFrame(data=d)
         else:
-           print('Groups are precomputed')
-           for i in range(0, n):
-               tmp0 = data.iloc[i].Distorted
-               tmp1 = data.iloc[i].Q
-               img_fn.append(tmp0)
-               q_val.append(tmp1)
-           d = {'Distorted': img_fn, 'Q': q_val}
-           data = pd.DataFrame(data=d)
+            print('Groups are precomputed')
+            
         data = [data[i:i + group] for i in range(0, len(data), group)]
     else:
         n = len(data)
