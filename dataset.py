@@ -99,12 +99,13 @@ def split_data(data_dir, random_state=42, group=None, bPrecompGroup=True):
     return train, val, test
 
 class HdrVdpDataset(Dataset):
-    def __init__(self, data, base_dir, group = None, bPrecompGroup=True, bScaling = False):
+    def __init__(self, data, base_dir, group = None, bPrecompGroup=True, bScaling = False, colorspace = 'REC709'):
         self.data = data
         self.base_dir = base_dir
         self.group = group
         self.bPrecompGroup = bPrecompGroup
         self.bScaling = bScaling
+        self.colorspace = colorspace
         
         if self.bScaling:
             print('Scaling is active')
@@ -116,7 +117,8 @@ class HdrVdpDataset(Dataset):
         full_name = os.path.join(self.base_dir, sample.Distorted)
 
         #print(full_name)
-        stim = load_image(full_name)
+        stim = load_image(full_name, colorspace = self.colorspace)
+        
         if self.group != None and (self.bPrecompGroup == False):
             stim = dataAugmentation_np(stim, index % self.group)
         

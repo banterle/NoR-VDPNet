@@ -119,7 +119,8 @@ if __name__ == '__main__':
     parser.add_argument('--lr', type=float, default=1e-4, help='Learning rate')
     parser.add_argument('-r', '--runs', type=str, default='runs/', help='Base dir for runs')
     parser.add_argument('--resume', default=None, help='Path to initial weights')
-    
+    parser.add_argument('-cs', '--colorspace', type=str, default='REC709', help='Color space of the input images')
+
     args = parser.parse_args()
 
     args.groupprecomp = (args.groupprecomp == 1)
@@ -160,13 +161,13 @@ if __name__ == '__main__':
         test_data.to_csv(os.path.join(run_dir, "test.csv"), ',')
 
     #create the loader for the training set
-    train_data = HdrVdpDataset(train_data, args.data, args.group, bPrecompGroup = args.groupprecomp, bScaling = args.scaling)
+    train_data = HdrVdpDataset(train_data, args.data, args.group, bPrecompGroup = args.groupprecomp, bScaling = args.scaling, colorspace = args.colorspace)
     train_loader = DataLoader(train_data, shuffle=True,  batch_size=args.batch, num_workers=8, pin_memory=True)
     #create the loader for the validation set
-    val_data = HdrVdpDataset(val_data, args.data, args.group, bPrecompGroup = args.groupprecomp, bScaling = args.scaling)
+    val_data = HdrVdpDataset(val_data, args.data, args.group, bPrecompGroup = args.groupprecomp, bScaling = args.scaling, colorspace = args.colorspace)
     val_loader = DataLoader(val_data, shuffle=False, batch_size=args.batch, num_workers=8, pin_memory=True)
     #create the loader for the testing set
-    test_data = HdrVdpDataset(test_data, args.data, args.group, bPrecompGroup = args.groupprecomp, bScaling = args.scaling)
+    test_data = HdrVdpDataset(test_data, args.data, args.group, bPrecompGroup = args.groupprecomp, bScaling = args.scaling, colorspace = args.colorspace)
     test_loader = DataLoader(test_data, shuffle=False, batch_size=1, num_workers=8, pin_memory=True)
 
     #create the model

@@ -29,7 +29,7 @@ def read_img(fname, grayscale=True):
     return img_torch
 
 #read a HDR image
-def read_hdr(fname,  maxClip = 1e6, grayscale=True, log_range=True):
+def read_hdr(fname,  maxClip = 1e6, grayscale=True, log_range=True, colorspace='REC709'):
     img = cv2.imread(fname, cv2.IMREAD_ANYCOLOR | cv2.IMREAD_ANYDEPTH)
     x = np.array(img, dtype=np.float)
     
@@ -41,9 +41,12 @@ def read_hdr(fname,  maxClip = 1e6, grayscale=True, log_range=True):
     x[np.isnan(x) == True] = maxClip
     x[np.isinf(x) == True] = maxClip
     
-    if grayscale: #REC709 luminance
-        x = 0.2126 * x[:,:,2] + 0.7152 * x[:,:,1] + 0.0722 * x[:,:,0]
-        
+    if grayscale and (x.shape[2] == 3): #REC709 luminance
+        if colorspace == 'REC709':
+            x = 0.2126 * x[:,:,2] + 0.7152 * x[:,:,1] + 0.0722 * x[:,:,0]
+        elif colorspace == 'REC2020':
+            x = 0.2126 * x[:,:,2] + 0.7152 * x[:,:,1] + 0.0722 * x[:,:,0]
+
     z = torch.FloatTensor(x)
     z = z.unsqueeze(0)
     
@@ -66,7 +69,7 @@ def read_mat(fname,  grayscale=True, log_range=True):
     return torch.FloatTensor(x)
 
 #read an image
-def load_image(fname, maxClip = 1e6, grayscale=True, log_range=True):
+def load_image(fname, maxClip = 1e6, grayscale=True, log_range=True, colorspace = 'REC709'):
     filename, ext = os.path.splitext(fname)
     ext = ext.lower()
     
@@ -74,7 +77,7 @@ def load_image(fname, maxClip = 1e6, grayscale=True, log_range=True):
        return read_mat(fname, grayscale, log_range)
     else:
         if (ext == '.exr') or (ext == '.hdr'):
-            return read_hdr(fname, maxClip, grayscale, log_range)
+            return read_hdr(fname, maxClip, grayscale, log_range, colorspace)
         else:
             return read_img(fname, grayscale)
 
