@@ -46,8 +46,10 @@ def train(loader, model, optimizer, args):
                 stim_j = stim
                 
             q_hat = model(stim_j)
+                        
+            q_hat = model(stim)
         
-            loss = F.mse_loss(q_hat, q)
+            loss = F.l1_loss(q_hat, q)
         
             optimizer.zero_grad()
             loss.backward()
@@ -88,7 +90,7 @@ def eval(loader, model, optimizer, args):
                     stim_j = stim
 
                 q_hat = model(stim_j)
-                loss = F.mse_loss(q_hat, q)
+                loss = F.l1_loss(q_hat, q)
             
                 total_loss += loss.item()
                         
@@ -125,8 +127,6 @@ if __name__ == '__main__':
     
     if args.gruoupAffine and (args.group != None) and (args.groupprecomp == False):
         args.gruoupAffine = False
-        
-    print(args.gruoupAffine)
     
     ### Prepare run dir
     params = vars(args)
