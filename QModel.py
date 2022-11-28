@@ -14,16 +14,21 @@ class QModel:
 
     def __init__(self, run):
         self.run = run
-        ckpt_dir = os.path.join(run, 'ckpt')    
-        ckpts = glob2.glob(os.path.join(ckpt_dir, '*.pth'))
-        assert ckpts, "No checkpoints to resume from!"
+        
+        if run.endswith('.pth'):
+            ckpt = run
+        else:
+            ckpt_dir = os.path.join(run, 'ckpt')
+            ckpts = glob2.glob(os.path.join(ckpt_dir, '*.pth'))
+            assert ckpts, "No checkpoints to resume from!"
 
-        def get_epoch(ckpt_url):
-            s = re.findall("ckpt_e(\d+).pth", ckpt_url)
-            epoch = int(s[0]) if s else -1
-            return epoch, ckpt_url
+            def get_epoch(ckpt_url):
+                s = re.findall("ckpt_e(\d+).pth", ckpt_url)
+                epoch = int(s[0]) if s else -1
+                return epoch, ckpt_url
 
-        start_epoch, ckpt = max(get_epoch(c) for c in ckpts)
+            start_epoch, ckpt = max(get_epoch(c) for c in ckpts)
+            
         print('Checkpoint:', ckpt)
         
         if torch.cuda.is_available():

@@ -45,7 +45,7 @@ def read_hdr(fname,  maxClip = 1e6, grayscale=True, log_range=True, colorspace='
         if colorspace == 'REC709':
             x = 0.2126 * x[:,:,2] + 0.7152 * x[:,:,1] + 0.0722 * x[:,:,0]
         elif colorspace == 'REC2020':
-            x = 0.2126 * x[:,:,2] + 0.7152 * x[:,:,1] + 0.0722 * x[:,:,0]
+            x = 0.263 * x[:,:,2] + 0.678 * x[:,:,1] + 0.059 * x[:,:,0]
 
     z = torch.FloatTensor(x)
     z = z.unsqueeze(0)

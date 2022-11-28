@@ -22,14 +22,14 @@ if __name__ == '__main__':
     names_mat = [f for f in os.listdir(args.data) if f.endswith('.mat')]
     names_hdr = [f for f in os.listdir(args.data) if f.endswith('.hdr')]
     names_exr = [f for f in os.listdir(args.data) if f.endswith('.exr')]
-    name_hdr = names_mat + names_hdr + names_exr
+    name_hdr = sorted(names_mat + names_hdr + names_exr)
 
     names_jpg = [f for f in os.listdir(args.data) if f.endswith('.jpg')]
     names_png = [f for f in os.listdir(args.data) if f.endswith('.png')]
-    names_sdr = names_jpg + names_png
+    names_sdr = sorted(names_jpg + names_png)
     
     for name in name_hdr:
-        stim = load_image(os.path.join(args.data,name), True, False, colorspace = args.colorspace)
+        stim = load_image(os.path.join(args.data, name), grayscale = True, log_range = True, colorspace = args.colorspace)
         p_model = float(model.predict(stim))
         print(name + " Q: " + str(round(p_model * 10000)/100))
 
