@@ -35,53 +35,62 @@ def read_data_split(data_dir, group=None, bPrecompGroup=True):
     test.sort_values(by=['Distorted'], inplace=True)
 
     return train, val, test
+    
+#
+#
+#
+def filterLuminance(data, group = None, thr = 500):
+    if group == None:
+        group = 1
+        
+    img_fn = []
+    q_val = []
+    bCheck = thr > 0.0
+
+    n = len(data)
+    for i in range(0, n):
+        if bCheck:
+            if np.abs(data.iloc[i].Lmax - thr) < 1.0:
+                tmp0 = data.iloc[i].Distorted
+                tmp1 = data.iloc[i].Q
+        
+                for j in range(0, group):
+                    img_fn.append(tmp0)
+                    q_val.append(tmp1)
+        else:
+            tmp0 = data.iloc[i].Distorted
+            tmp1 = data.iloc[i].Q
+        
+            for j in range(0, group):
+                img_fn.append(tmp0)
+                q_val.append(tmp1)
+            
+    d = {'Distorted': img_fn, 'Q': q_val}
+    data = pd.DataFrame(data=d)
+    
+    return data
 
 #
 #
 #
-def split_data(data_dir, random_state=42, group=None, bPrecompGroup=True):
+def split_data(data_dir, random_state=42, group=None, bPrecompGroup=True, thr = -1):
 
     data = os.path.join(data_dir, 'data.csv')
     data = pd.read_csv(data)
     
-    img_fn = []
-    q_val = []
-
     if group:
         print('Grouping')
-        n = len(data)
         if bPrecompGroup == False:
            print('Groups transformations are online')
-
-           for i in range(0, n):
-               tmp0 = data.iloc[i].Distorted
-               tmp1 = data.iloc[i].Q
-               
-               for j in range(0, group):
-                   img_fn.append(tmp0)
-                   q_val.append(tmp1)
-           d = {'Distorted': img_fn, 'Q': q_val}
-           data = pd.DataFrame(data=d)
+           data = filterLuminance(data, group, thr)
         else:
             print('Groups are precomputed')
+            data = filterLuminance(data, None, thr)
             
         data = [data[i:i + group] for i in range(0, len(data), group)]
     else:
-        n = len(data)
-        for i in range(0, n):
-            tmp0 = data.iloc[i].Distorted
-            tmp1 = data.iloc[i].Q
-            
-            if checkFile(data_dir, tmp0):
-                img_fn.append(tmp0)
-                q_val.append(tmp1)
-            else:
-                print(tmp0)
-                
-        d = {'Distorted': img_fn, 'Q': q_val}
-        data = pd.DataFrame(data=d)
-        
         print('No grouping')
+        data = filterLuminance(data, None, thr)
 
     plt.clf()
     sns.distplot(q_val, kde=True, rug=True, bins=100)
