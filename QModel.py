@@ -12,7 +12,7 @@ from model import QNet
 
 class QModel:
 
-    def __init__(self, run):
+    def __init__(self, run, grayscale = True):
         self.run = run
         
         if run.endswith('.pth'):
@@ -31,12 +31,18 @@ class QModel:
             
         print('Checkpoint:', ckpt)
         
-        if torch.cuda.is_available():
-           model = QNet().cuda()
-        else:
-           model = QNet()
-        
         ckpt = torch.load(ckpt)
+        
+        if grayscale:
+            n_in =1
+        else:
+            n_in = 3
+            
+        model = QNet(n_in, 1)
+        
+        if torch.cuda.is_available():
+           model = model.cuda()
+        
         model.load_state_dict(ckpt['model'])
         model.eval()
         

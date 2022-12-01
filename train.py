@@ -170,13 +170,15 @@ if __name__ == '__main__':
     val_loader = DataLoader(val_data, shuffle=False, batch_size=args.batch, num_workers=8, pin_memory=True)
     #create the loader for the testing set
     test_data = HdrVdpDataset(test_data, args.data, args.group, bPrecompGroup = args.groupprecomp, bScaling = args.scaling, colorspace = args.colorspace, color = args.color)
-    test_loader = DataLoader(test_data, shuffle=False, batch_size=1, num_workers=8, pin_memory=True)
+    test_loader = DataLoader(test_data, shuffle=False, batch_size=args.batch, num_workers=8, pin_memory=True)
 
     #create the model
-    if args.color == 'gray':
-        model = QNet(1, 1)
-    else:
-        model = QNet(3, 1)
+    n_in = 1
+    if args.color == 'rgb':
+        n_in = 3
+
+    print(n_in)
+    model = QNet(n_in, 1)
         
     if(torch.cuda.is_available()):
         model = model.cuda()        

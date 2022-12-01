@@ -14,7 +14,7 @@ class QNet(nn.Module):
         pad = 1
         std = 1
         self.conv = nn.Sequential(
-            nn.Conv2d(1, 32, 3, padding=pad),
+            nn.Conv2d(in_size, 32, 3, padding=pad),
             nn.ReLU(),
             nn.Conv2d(32, 32, 3, stride=std, padding=pad),
             nn.ReLU(),

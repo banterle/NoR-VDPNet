@@ -14,10 +14,13 @@ if __name__ == '__main__':
     parser.add_argument('run', type=str, help='Base dir where weights are')
     parser.add_argument('data', type=str, help='Base dir of run to evaluate')
     parser.add_argument('-cs', '--colorspace', type=str, default='REC709', help='Color space of the input images')
+    parser.add_argument('--color', type=str, default='gray', help='Enable/Disable color inputs')
 
     args = parser.parse_args()
+    
+    bGrayscale = (args.color == 'gray')
         
-    model = QModel(args.run)
+    model = QModel(args.run, grayscale)
     
     names_mat = [f for f in os.listdir(args.data) if f.endswith('.mat')]
     names_hdr = [f for f in os.listdir(args.data) if f.endswith('.hdr')]
@@ -28,13 +31,10 @@ if __name__ == '__main__':
     names_png = [f for f in os.listdir(args.data) if f.endswith('.png')]
     names_sdr = sorted(names_jpg + names_png)
     
-    for name in name_hdr:
-        stim = load_image(os.path.join(args.data, name), grayscale = True, log_range = True, colorspace = args.colorspace)
-        p_model = float(model.predict(stim))
-        print(name + " Q: " + str(round(p_model * 10000)/100))
-
-    for name in names_sdr:
-        stim = load_image(os.path.join(args.data,name), True, True)
+    names = name_hdr + name_sdr
+    
+    for name in names:
+        stim = load_image(os.path.join(args.data, name), grayscale = bGrayscale, log_range = True, colorspace = args.colorspace)
         p_model = float(model.predict(stim))
         print(name + " Q: " + str(round(p_model * 10000)/100))
 

@@ -19,11 +19,10 @@ import cv2
 def read_img(fname, grayscale=True):
     img = Image.open(fname)
     img = img.convert('L') if grayscale else img.convert('RGB')
-    img_np = np.array(img);
-    img_np = img_np.astype('float32')
-    img_np /= 255.0
-    img_torch = torch.FloatTensor(img_np)
-    img_torch = img_torch.unsqueeze(0)
+    img_torch = to_tensor(img)
+    if grayscale:        
+        img_torch = img_torch.unsqueeze(0)
+        
     #c = T.ToPILImage()
     #c(img_torch).save('test.png')
     return img_torch
@@ -48,8 +47,14 @@ def read_hdr(fname,  maxClip = 1e6, grayscale=True, log_range=True, colorspace='
         elif colorspace == 'REC2020':
             x = 0.263 * x[:,:,2] + 0.678 * x[:,:,1] + 0.059 * x[:,:,0]
 
-    z = torch.FloatTensor(x)
-    z = z.unsqueeze(0)
+    if not grayscale:
+        sz = x.shape
+        x = np.reshape(x, (sz[2],sz[0],sz[1]))
+
+    z = torch.FloatTensor(x)  
+                        
+    if grayscale:
+        z = z.unsqueeze(0)
     
     if log_range:
         z = torch.log10(z + 1.0)
