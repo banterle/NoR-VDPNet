@@ -63,7 +63,7 @@ def train(loader, model, optimizer, args):
     return total_loss / counter;
     
 #evaluate for a single epoch
-def eval(loader, model, optimizer, args):
+def eval(loader, model, args):
     nAffine = 1
     if args.gruoupAffine:
         nAffine = 7
@@ -113,13 +113,14 @@ if __name__ == '__main__':
     parser.add_argument('-g', '--group', type=int, help='grouping factor for augmented dataset')
     parser.add_argument('-gp', '--groupprecomp', type=int, default = 0, help='grouping type')
     parser.add_argument('-gpa', '--gruoupAffine', type=int, default = 0, help='affine transformation')
-    parser.add_argument('-e', '--epochs', type=int, default=1024, help='Number of training epochs')
+    parser.add_argument('-e', '--epochs', type=int, default=100, help='Number of training epochs')
     parser.add_argument('-s', '--scaling', type=bool, default=False, help='scaling')
-    parser.add_argument('-b', '--batch', type=int, default=1, help='Batch size')
+    parser.add_argument('-b', '--batch', type=int, default=8, help='Batch size')
     parser.add_argument('--lr', type=float, default=1e-4, help='Learning rate')
     parser.add_argument('-r', '--runs', type=str, default='runs/', help='Base dir for runs')
     parser.add_argument('--resume', default=None, help='Path to initial weights')
     parser.add_argument('-cs', '--colorspace', type=str, default='REC709', help='Color space of the input images')
+    parser.add_argument('-color', type=str, default='gray', help='Enable/Disable color inputs')
     parser.add_argument('--lmax', type=float, default=-1.0, help='Monitor max luminance output')
 
     args = parser.parse_args()
@@ -152,7 +153,7 @@ if __name__ == '__main__':
         train_data, val_data, test_data = read_data_split(args.data)
     else:
         print('Computing train/validation/test')
-        train_data, val_data, test_data = split_data(args.data, group=args.group, bPrecompGroup = args.groupprecomp)
+        train_data, val_data, test_data = split_data(args.data, group=args.group, bPrecompGroup = args.groupprecomp, thr = args.lmax)
         train_data.to_csv(os.path.join(args.data, "train.csv"), ',')
         val_data.to_csv(os.path.join(args.data, "val.csv"), ',')
         test_data.to_csv(os.path.join(args.data, "test.csv"), ',')
@@ -162,17 +163,21 @@ if __name__ == '__main__':
         test_data.to_csv(os.path.join(run_dir, "test.csv"), ',')
 
     #create the loader for the training set
-    train_data = HdrVdpDataset(train_data, args.data, args.group, bPrecompGroup = args.groupprecomp, bScaling = args.scaling, colorspace = args.colorspace)
+    train_data = HdrVdpDataset(train_data, args.data, args.group, bPrecompGroup = args.groupprecomp, bScaling = args.scaling, colorspace = args.colorspace, color = args.color)
     train_loader = DataLoader(train_data, shuffle=True,  batch_size=args.batch, num_workers=8, pin_memory=True)
     #create the loader for the validation set
-    val_data = HdrVdpDataset(val_data, args.data, args.group, bPrecompGroup = args.groupprecomp, bScaling = args.scaling, colorspace = args.colorspace)
+    val_data = HdrVdpDataset(val_data, args.data, args.group, bPrecompGroup = args.groupprecomp, bScaling = args.scaling, colorspace = args.colorspace, color = args.color)
     val_loader = DataLoader(val_data, shuffle=False, batch_size=args.batch, num_workers=8, pin_memory=True)
     #create the loader for the testing set
-    test_data = HdrVdpDataset(test_data, args.data, args.group, bPrecompGroup = args.groupprecomp, bScaling = args.scaling, colorspace = args.colorspace)
+    test_data = HdrVdpDataset(test_data, args.data, args.group, bPrecompGroup = args.groupprecomp, bScaling = args.scaling, colorspace = args.colorspace, color = args.color)
     test_loader = DataLoader(test_data, shuffle=False, batch_size=1, num_workers=8, pin_memory=True)
 
     #create the model
-    model = QNet()
+    if args.color == 'gray':
+        model = QNet(1, 1)
+    else:
+        model = QNet(3, 1)
+        
     if(torch.cuda.is_available()):
         model = model.cuda()        
 
@@ -209,8 +214,8 @@ if __name__ == '__main__':
         
     for epoch in trange(start_epoch, args.epochs + 1):
         cur_loss = train(train_loader, model, optimizer, args)
-        val_loss, targets, predictions = eval(val_loader, model, optimizer, args)
-        test_loss, targets, predictions = eval(test_loader, model, optimizer, args)
+        val_loss, targets, predictions = eval(val_loader, model, args)
+        test_loss, targets, predictions = eval(test_loader, model, args)
        
         metrics = {'epoch': epoch}
         metrics['mse_train'] = cur_loss

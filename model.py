@@ -12,32 +12,37 @@ class QNet(nn.Module):
         super(QNet, self).__init__()
 
         pad = 1
-        std = 2
+        std = 1
         self.conv = nn.Sequential(
             nn.Conv2d(1, 32, 3, padding=pad),
             nn.ReLU(),
             nn.Conv2d(32, 32, 3, stride=std, padding=pad),
             nn.ReLU(),
+            nn.MaxPool2d(2),
             #####################################################
             nn.Conv2d(32, 64, 3, padding=pad),
             nn.ReLU(),
             nn.Conv2d(64, 64, 3, stride=std, padding=pad),
             nn.ReLU(),
+            nn.MaxPool2d(2),
             #####################################################
             nn.Conv2d(64, 128, 3, padding=pad),
             nn.ReLU(),
             nn.Conv2d(128, 128, 3, stride=std, padding=pad),
             nn.ReLU(),
+            nn.MaxPool2d(2),
             #####################################################
             nn.Conv2d(128, 256, 3, padding=pad),
             nn.ReLU(),
             nn.Conv2d(256, 256, 3, stride=std, padding=pad),
             nn.ReLU(),
+            nn.MaxPool2d(2),
             #####################################################
             nn.Conv2d(256, 512, 3, padding=pad),
             nn.ReLU(),
             nn.Conv2d(512, 512, 3, stride=std, padding=pad),
             nn.ReLU(),
+            nn.MaxPool2d(2)
         )
 
         self.regressor = nn.Sequential(

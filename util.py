@@ -43,6 +43,7 @@ def read_hdr(fname,  maxClip = 1e6, grayscale=True, log_range=True, colorspace='
     
     if grayscale and (x.shape[2] == 3): #REC709 luminance
         if colorspace == 'REC709':
+            #NOTE: in opencv red and blue channels are in a different order
             x = 0.2126 * x[:,:,2] + 0.7152 * x[:,:,1] + 0.0722 * x[:,:,0]
         elif colorspace == 'REC2020':
             x = 0.263 * x[:,:,2] + 0.678 * x[:,:,1] + 0.059 * x[:,:,0]
@@ -56,11 +57,14 @@ def read_hdr(fname,  maxClip = 1e6, grayscale=True, log_range=True, colorspace='
     return z
 
 #read an 8-bit/32-bit image in MATLAB format
-def read_mat(fname,  grayscale=True, log_range=True):
+def read_mat(fname,  grayscale=True, log_range=True, colorspace='REC709'):
     x = loadmat(fname, verify_compressed_data_integrity=False)['image']
     
-    if len(x.shape) == 3:
-        x = 0.2126 * x[:,:,0] + 0.7152 * x[:,:,1] + 0.0722 * x[:,:,2]
+    if (len(x.shape) == 3) and grayscale:
+        if colorspace == 'REC709':
+            x = 0.2126 * x[:,:,0] + 0.7152 * x[:,:,1] + 0.0722 * x[:,:,2]
+        elif colorspace == 'REC2020':
+            x = 0.263 * x[:,:,0] + 0.678 * x[:,:,1] + 0.059 * x[:,:,2]
 
     if log_range:  # perform log10(1 + image)
         x = np.log10(x + 1.0)
