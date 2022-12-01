@@ -120,7 +120,7 @@ if __name__ == '__main__':
     parser.add_argument('-r', '--runs', type=str, default='runs/', help='Base dir for runs')
     parser.add_argument('--resume', default=None, help='Path to initial weights')
     parser.add_argument('-cs', '--colorspace', type=str, default='REC709', help='Color space of the input images')
-    parser.add_argument('-color', type=str, default='gray', help='Enable/Disable color inputs')
+    parser.add_argument('--color', type=str, default='gray', help='Enable/Disable color inputs')
     parser.add_argument('--lmax', type=float, default=-1.0, help='Monitor max luminance output')
 
     args = parser.parse_args()
