@@ -74,6 +74,28 @@ def filterLuminance(data, group = None, thr = 500):
     data = pd.DataFrame(data=d)
     
     return data, q_val
+    
+    
+def filterLuminanceSimple(data, group = None):
+    if group == None:
+        group = 1
+        
+    img_fn = []
+    q_val = []
+
+    n = len(data)
+    for i in range(0, n):
+        tmp0 = data.iloc[i].Distorted
+        tmp1 = data.iloc[i].Q
+        
+        for j in range(0, group):
+            img_fn.append(tmp0)
+            q_val.append(tmp1)
+
+    d = {'Distorted': img_fn, 'Q': q_val}
+    data = pd.DataFrame(data=d)
+    
+    return data, q_val
 
 #
 #
@@ -86,16 +108,25 @@ def split_data(data_dir, random_state=42, group=None, bPrecompGroup=True, thr = 
     if group:
         print('Grouping')
         if bPrecompGroup == False:
-           print('Groups transformations are online')
-           data, q_val = filterLuminance(data, group, thr)
+            print('Groups transformations are online')
+            try:
+                data, q_val = filterLuminance(data, group, thr)
+            except:
+                data, q_val = filterLuminanceSimple(data, group)
         else:
             print('Groups are precomputed')
-            data, q_val = filterLuminance(data, None, thr)
-            
+            try:
+                data, q_val = filterLuminance(data, None, thr)
+            except:
+                data, q_val = filterLuminanceSimple(data, group)
+
         data = [data[i:i + group] for i in range(0, len(data), group)]
     else:
         print('No grouping')
-        data, q_val = filterLuminance(data, None, thr)
+        try:
+            data, q_val = filterLuminance(data, None, thr)
+        except:
+            data, q_val = filterLuminanceSimple(data, group)
 
     plt.clf()
     sns.distplot(q_val, kde=True, rug=True, bins=100)
