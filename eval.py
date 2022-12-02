@@ -20,18 +20,18 @@ if __name__ == '__main__':
     
     bGrayscale = (args.color == 'gray')
         
-    model = QModel(args.run, grayscale)
+    model = QModel(args.run, bGrayscale)
     
     names_mat = [f for f in os.listdir(args.data) if f.endswith('.mat')]
     names_hdr = [f for f in os.listdir(args.data) if f.endswith('.hdr')]
     names_exr = [f for f in os.listdir(args.data) if f.endswith('.exr')]
-    name_hdr = sorted(names_mat + names_hdr + names_exr)
+    names_hdr = sorted(names_mat + names_hdr + names_exr)
 
     names_jpg = [f for f in os.listdir(args.data) if f.endswith('.jpg')]
     names_png = [f for f in os.listdir(args.data) if f.endswith('.png')]
     names_sdr = sorted(names_jpg + names_png)
     
-    names = name_hdr + name_sdr
+    names = names_hdr + names_sdr
     
     for name in names:
         stim = load_image(os.path.join(args.data, name), grayscale = bGrayscale, log_range = True, colorspace = args.colorspace)
