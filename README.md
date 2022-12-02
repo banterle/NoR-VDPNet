@@ -35,15 +35,20 @@ python3 eval.py /home/user00/nor-vdpnet/trainings/ckpt/ /home/user00/images_to_b
 WEIGHTS DOWNLOAD:
 =================
 There are two different weight sets:
+
 weights_sdr: Weights for SDR distortions that are meant for SDR images (8-bit images: JPEG and PNG); they can be downloaded at this link.
+
 weights_hdrc: Weights for JPEG-XT distortions that are meant for HDR images (HDR, EXR, and MAT files); they can be downloaded at this link.
 
 DO NOT:
 =======
 
 1) Please do not use weights_sdr for HDR images;
+
 2) Please do not use weights_hdrc for SDR images;
+
 3) Please do not use weights_hdrc for testing distortions that are not JPEG-XT distortions or compression distortions;
+
 4) Please do not use weights_sdr for distortions that are not in the paper.
 
 DATASET PREPARATION:
