@@ -20,7 +20,7 @@ As the first step, you need to follow the [instructions for installing PyTorch](
 To install dependencies, please use the following command: 
 
 ```bash
-pip3 install numpy, scipy, matplotlib, glob2, pandas, image, scikit-learn. 
+pip3 install numpy, scipy, matplotlib, glob2, pandas, image, scikit-learn, opencv-python. 
 ```
 
 HOW TO RUN IT:
