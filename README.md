@@ -51,20 +51,19 @@ __dataset_folder/:
   |_______data.csv
 ```
 
-JPG/PNG/MAT files for distorted images go in the ```stim/``` folder, and the Q values and links to their
+JPG/PNG/EXR/HDR/MAT files for distorted images go in the ```stim/``` folder, and the Q values and links to their
 respective image need to be stored in the ```data.csv``` file. Please have a look at this ```data.csv``` file example:
 
 ```
 Distorted,Q
-img000.png,95.33
-img001.jpg,73.23
-img002.jpg,87.57
-img003.jpg,71.23
-img005.png,82.30
+stim/img000.png,95.33
+stim/img001.jpg,73.23
+stim/img002.jpg,87.57
+stim/img003.jpg,71.23
+stim/img005.png,82.30
 ```
 
-For loading HDR images, we use MAT files. Note that an image in this format need to be stored
-as a variable ```image```.
+When using the .mat file format for HDR images, such images need to be stored as a variable ```image```.
 
 
 TRAINING:
