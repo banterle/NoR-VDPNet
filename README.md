@@ -84,11 +84,11 @@ When using the .mat file format for HDR images, such images need to be stored as
 TRAINING:
 =========
 If you want to train our metric, you need to run ```train.py``` file. This line shows how to
-train the metric for a dataset in the folder ```/home/users00/data1``` for 1024 epochs with batch size 16
+train the metric for a dataset in the folder ```/home/users00/data1``` for 75 epochs with batch size 16
 and learning rate 1e-4:
 
 ```
-python3 train.py /home/users00/data1 -e 1024 --lr=1e-4 -b 16
+python3 train.py /home/users00/data1 -e 75 --lr=1e-4 -b 32
 ```
 
 Note that the folder ```data1``` needs to contain the file ```data.csv``` and the subfolder ```stim```.
@@ -97,8 +97,8 @@ In our paper, we trained SDR and HDR datasets with these paramters:
 
 ```
 Learning Rate: 1e-4
-Batch Size: 16
-Epochs: 1024
+Batch Size: 32
+Epochs: 75
 ```
 
 REFERENCE:
