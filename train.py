@@ -26,10 +26,6 @@ import re
 def train(loader, model, optimizer, args):
     model.train()
 
-    nAffine = 1
-    if args.gruoupAffine:
-        nAffine = 7
-
     total_loss = 0.0
     counter = 0
     progress = tqdm(loader)
@@ -38,25 +34,17 @@ def train(loader, model, optimizer, args):
         if torch.cuda.is_available():
             stim = stim.cuda()
             q = q.cuda()
-            
-        for j in range(0, nAffine):
-            if nAffine > 0:
-                stim_j = torchDataAugmentation(stim, j)
-            else:
-                stim_j = stim
-                
-            q_hat = model(stim_j)
+                            
                         
-            q_hat = model(stim)
+        q_hat = model(stim)
+        loss = F.l1_loss(q_hat, q)
         
-            loss = F.l1_loss(q_hat, q)
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
         
-            optimizer.zero_grad()
-            loss.backward()
-            optimizer.step()
-        
-            total_loss += loss.item()
-            counter += 1
+        total_loss += loss.item()
+        counter += 1
         
         progress.set_postfix({'loss': total_loss / counter})
 
@@ -64,10 +52,6 @@ def train(loader, model, optimizer, args):
     
 #evaluate for a single epoch
 def eval(loader, model, args):
-    nAffine = 1
-    if args.gruoupAffine:
-        nAffine = 7
-
     model.eval()
 
     total_loss = 0.0
@@ -83,22 +67,16 @@ def eval(loader, model, args):
                 stim = stim.cuda()
                 q = q.cuda()
 
-            for j in range(0, nAffine):
-                if nAffine > 0:
-                    stim_j = torchDataAugmentation(stim, j)
-                else:
-                    stim_j = stim
-
-                q_hat = model(stim_j)
-                loss = F.l1_loss(q_hat, q)
+            q_hat = model(stim)
+            loss = F.l1_loss(q_hat, q)
             
-                total_loss += loss.item()
+            total_loss += loss.item()
                         
-                targets.append(q)
-                predictions.append(q_hat)
-                counter += 1
+            targets.append(q)
+            predictions.append(q_hat)
+            counter += 1
             
-                progress.set_postfix({'loss': total_loss / counter})
+            progress.set_postfix({'loss': total_loss / counter})
         
     targets = torch.cat(targets, 0).squeeze()
     predictions = torch.cat(predictions, 0).squeeze()
@@ -112,7 +90,7 @@ if __name__ == '__main__':
     parser.add_argument('data', type=str, help='Path to data dir')
     parser.add_argument('-g', '--group', type=int, help='grouping factor for augmented dataset')
     parser.add_argument('-gp', '--groupprecomp', type=int, default = 0, help='grouping type')
-    parser.add_argument('-gpa', '--gruoupAffine', type=int, default = 0, help='affine transformation')
+    parser.add_argument('-gpa', '--groupaffine', type=int, default = 0, help='augmentation with an affine transformation')
     parser.add_argument('-e', '--epochs', type=int, default=100, help='Number of training epochs')
     parser.add_argument('-s', '--scaling', type=bool, default=False, help='scaling')
     parser.add_argument('-b', '--batch', type=int, default=8, help='Batch size')
@@ -125,12 +103,7 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    args.groupprecomp = (args.groupprecomp == 1)
-    args.gruoupAffine = (args.gruoupAffine == 1)
-    
-    if args.gruoupAffine and (args.group != None) and (args.groupprecomp == False):
-        args.gruoupAffine = False
-    
+  
     ### Prepare run dir
     params = vars(args)
     params['dataset'] = os.path.basename(os.path.normpath(args.data))
@@ -150,10 +123,10 @@ if __name__ == '__main__':
     ### Load Data
     if os.path.exists(os.path.join(args.data, 'train.csv')):
         print('Precomputed train/validation/test')
-        train_data, val_data, test_data = read_data_split(args.data)
+        train_data, val_data, test_data = read_data_split(args.data, args.group, args.groupaffine)
     else:
         print('Computing train/validation/test')
-        train_data, val_data, test_data = split_data(args.data, group=args.group, bPrecompGroup = args.groupprecomp, thr = args.lmax)
+        train_data, val_data, test_data = split_data(args.data, group=args.group, groupaffine = args.groupaffine)
         train_data.to_csv(os.path.join(args.data, "train.csv"), ',')
         val_data.to_csv(os.path.join(args.data, "val.csv"), ',')
         test_data.to_csv(os.path.join(args.data, "test.csv"), ',')
@@ -163,13 +136,13 @@ if __name__ == '__main__':
         test_data.to_csv(os.path.join(run_dir, "test.csv"), ',')
 
     #create the loader for the training set
-    train_data = HdrVdpDataset(train_data, args.data, args.group, bPrecompGroup = args.groupprecomp, bScaling = args.scaling, colorspace = args.colorspace, color = args.color)
+    train_data = HdrVdpDataset(train_data, args.data, args.group, groupaffine = args.groupaffine, bScaling = args.scaling, colorspace = args.colorspace, color = args.color)
     train_loader = DataLoader(train_data, shuffle=True,  batch_size=args.batch, num_workers=8, pin_memory=True)
     #create the loader for the validation set
-    val_data = HdrVdpDataset(val_data, args.data, args.group, bPrecompGroup = args.groupprecomp, bScaling = args.scaling, colorspace = args.colorspace, color = args.color)
+    val_data = HdrVdpDataset(val_data, args.data, args.group, groupaffine = args.groupaffine, bScaling = args.scaling, colorspace = args.colorspace, color = args.color)
     val_loader = DataLoader(val_data, shuffle=False, batch_size=args.batch, num_workers=8, pin_memory=True)
     #create the loader for the testing set
-    test_data = HdrVdpDataset(test_data, args.data, args.group, bPrecompGroup = args.groupprecomp, bScaling = args.scaling, colorspace = args.colorspace, color = args.color)
+    test_data = HdrVdpDataset(test_data, args.data, args.group, groupaffine = args.groupaffine, bScaling = args.scaling, colorspace = args.colorspace, color = args.color)
     test_loader = DataLoader(test_data, shuffle=False, batch_size=args.batch, num_workers=8, pin_memory=True)
 
     #create the model
@@ -196,8 +169,15 @@ if __name__ == '__main__':
     a_te = []
     
     start_epoch = 1
+    
     if args.resume:
-       ckpt_dir_r = os.path.join(args.resume, 'ckpt')
+    
+       if args.resume == 'same':
+          ckpt_dir_r = ckpt_dir
+       else:
+          ckpt_dir_r = os.path.join(args.resume, 'ckpt')
+          
+       print('Resume: ' + ckpt_dir_r)
        ckpts = glob2.glob(os.path.join(ckpt_dir_r, '*.pth'))
        assert ckpts, "No checkpoints to resume from!"
     
@@ -230,7 +210,7 @@ if __name__ == '__main__':
         a_v.append(val_loss)
         a_te.append(test_loss)
 
-        if best_mse is None or (val_loss < best_mse):
+        if (best_mse is None) or (val_loss < best_mse) or (epoch == args.epochs):
             delta = (targets - predictions)
             errors = delta.cpu().numpy()
             pd.DataFrame(errors).to_csv(os.path.join(run_dir, 'errors_test.csv'))

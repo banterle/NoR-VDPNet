@@ -20,12 +20,13 @@ def read_img(fname, grayscale=True):
     img = Image.open(fname)
     img = img.convert('L') if grayscale else img.convert('RGB')
     img_torch = to_tensor(img)
-    if grayscale:        
-        img_torch = img_torch.unsqueeze(0)
+    #if grayscale:
+    #    img_torch = img_torch.unsqueeze(0)
+    img_torch = torch.pow(img_torch, 2.2)
         
     #c = T.ToPILImage()
     #c(img_torch).save('test.png')
-    return img_torch
+    return (img_torch - 0.5) * 2.0
 
 #read a HDR image
 def read_hdr(fname,  maxClip = 1e6, grayscale=True, log_range=True, colorspace='REC709'):
@@ -113,6 +114,8 @@ def dataAugmentation_np(img, j):
         out = out.copy()
     return out
     
+#
+#
 #
 def torchDataAugmentation(img, j):
     img_out = []
