@@ -20,21 +20,36 @@ As the first step, you need to follow the [instructions for installing PyTorch](
 To install dependencies, please use the following command: 
 
 ```bash
-pip3 install numpy, scipy, matplotlib, glob2, pandas, image, scikit-learn. 
+pip3 install numpy, scipy, matplotlib, glob2, pandas, image, scikit-learn, opencv-python. 
 ```
 
 HOW TO RUN IT:
 ==============
-To run our metric on a folder of images (i.e., JPEG, PNG, and MAT),
+To run our metric on a folder of images (i.e., JPEG, PNG, EXR, HDR, and MAT files),
 you need to launch the file ```eval.py```; for example:
 
 ```
 python3 eval.py /home/user00/nor-vdpnet/trainings/ckpt/ /home/user00/images_to_be_tested/
 ```
 
-To get weights for HDR Compression and SDR distortions, please send an email at:
+WEIGHTS DOWNLOAD:
+=================
+There are two different weight sets:
 
-```francesco [dot] banterle [at] isti [dot] cnr [dot] it```
+weights_sdr: Weights for SDR distortions that are meant for SDR images (8-bit images: JPEG and PNG); they can be downloaded at this <a href="https://www.dropbox.com/s/t8eobjjqth5xgin/norvdpnet_sdr.pth?dl=0">link</a>.
+
+weights_hdrc: Weights for JPEG-XT distortions that are meant for HDR images (HDR, EXR, and MAT files); they can be downloaded at this  <a href="https://www.dropbox.com/s/xmog6vfqnewavwc/norvdpnet_hdrc.pth?dl=0">link</a>.
+
+DO NOT:
+=======
+
+1) Please do not use weights_sdr for HDR images;
+
+2) Please do not use weights_hdrc for SDR images;
+
+3) Please do not use weights_hdrc for testing distortions that are not JPEG-XT distortions or compression distortions;
+
+4) Please do not use weights_sdr for distortions that are not in the paper.
 
 DATASET PREPARATION:
 ====================
@@ -51,30 +66,29 @@ __dataset_folder/:
   |_______data.csv
 ```
 
-JPG/PNG/MAT files for distorted images go in the ```stim/``` folder, and the Q values and links to their
+JPG/PNG/EXR/HDR/MAT files for distorted images go in the ```stim/``` folder, and the Q values and links to their
 respective image need to be stored in the ```data.csv``` file. Please have a look at this ```data.csv``` file example:
 
 ```
 Distorted,Q
-img000.png,95.33
-img001.jpg,73.23
-img002.jpg,87.57
-img003.jpg,71.23
-img005.png,82.30
+stim/img000.png,95.33
+stim/img001.jpg,73.23
+stim/img002.jpg,87.57
+stim/img003.jpg,71.23
+stim/img005.png,82.30
 ```
 
-For loading HDR images, we use MAT files. Note that an image in this format need to be stored
-as a variable ```image```.
+When using the .mat file format for HDR images, such images need to be stored as a variable ```image```.
 
 
 TRAINING:
 =========
 If you want to train our metric, you need to run ```train.py``` file. This line shows how to
-train the metric for a dataset in the folder ```/home/users00/data1``` for 1024 epochs with batch size 16
+train the metric for a dataset in the folder ```/home/users00/data1``` for 75 epochs with batch size 16
 and learning rate 1e-4:
 
 ```
-python3 train.py /home/users00/data1 -e 1024 --lr=1e-4 -b 16
+python3 train.py /home/users00/data1 -e 75 --lr=1e-4 -b 32
 ```
 
 Note that the folder ```data1``` needs to contain the file ```data.csv``` and the subfolder ```stim```.
@@ -83,8 +97,8 @@ In our paper, we trained SDR and HDR datasets with these paramters:
 
 ```
 Learning Rate: 1e-4
-Batch Size: 16
-Epochs: 1024
+Batch Size: 32
+Epochs: 75
 ```
 
 REFERENCE:
