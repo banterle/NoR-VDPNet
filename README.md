@@ -36,9 +36,9 @@ WEIGHTS DOWNLOAD:
 =================
 There are two different weight sets:
 
-weights_sdr: Weights for SDR distortions that are meant for SDR images (8-bit images: JPEG and PNG); they can be downloaded at this <a href="https://www.dropbox.com/s/t8eobjjqth5xgin/norvdpnet_sdr.pth?dl=0">link</a>.
+weights_sdr: Weights for SDR distortions that are meant for SDR images (8-bit images: JPEG and PNG); they can be downloaded at this <a href="https://www.dropbox.com/s/kxbdz76spdoidpi/norvdpnet_sdr.pth?dl=0">link</a>.
 
-weights_hdrc: Weights for JPEG-XT distortions that are meant for HDR images (HDR, EXR, and MAT files); they can be downloaded at this  <a href="https://www.dropbox.com/s/xmog6vfqnewavwc/norvdpnet_hdrc.pth?dl=0">link</a>.
+weights_hdrc: Weights for JPEG-XT distortions that are meant for HDR images (HDR, EXR, and MAT files); they can be downloaded at this  <a href="https://www.dropbox.com/s/vd8em3yzxu0fm8r/norvdpnet_hdrc.pth?dl=0">link</a>.
 
 DO NOT:
 =======
