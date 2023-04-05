@@ -40,6 +40,8 @@ weights_sdr: Weights for SDR distortions that are meant for SDR images (8-bit im
 
 weights_hdrc: Weights for JPEG-XT distortions that are meant for HDR images (HDR, EXR, and MAT files); they can be downloaded at this  <a href="https://www.dropbox.com/s/vd8em3yzxu0fm8r/norvdpnet_hdrc.pth?dl=0">link</a>.
 
+Note that these weights are meant to model ONLY determined distortions; please see reference to have a complete overview.
+
 DO NOT:
 =======
 
