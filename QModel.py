@@ -31,7 +31,10 @@ class QModel:
             
         print('Checkpoint:', ckpt)
         
-        ckpt = torch.load(ckpt)
+        if torch.cuda.is_available():
+            ckpt = torch.load(ckpt)
+        else:
+            ckpt = torch.load(ckpt, map_location=torch.device('cpu'))
         
         if grayscale:
             n_in =1

@@ -20,9 +20,9 @@ if __name__ == '__main__':
     
     bGrayscale = (args.color == 'gray')
         
-    if mode == 'SDR':
+    if args.mode == 'SDR':
         model = QModel('weights/norvdpnet_sdr.pth', bGrayscale)
-    elif mode == 'HDR':
+    elif args.mode == 'HDR':
         model = QModel('weights/norvdpnet_hdrc.pth', bGrayscale)
 
     names_mat = [f for f in os.listdir(args.img_folder) if f.endswith('.mat')]
@@ -37,7 +37,7 @@ if __name__ == '__main__':
     names = names_hdr + names_sdr
     
     for name in names:
-        stim = load_image(os.path.join(args.data, name), grayscale = bGrayscale, log_range = True, colorspace = args.colorspace)
+        stim = load_image(os.path.join(args.img_folder, name), grayscale = bGrayscale, log_range = True, colorspace = args.colorspace)
         p_model = float(model.predict(stim))
         print(name + " Q: " + str(round(p_model * 10000)/100))
 
