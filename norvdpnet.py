@@ -30,9 +30,10 @@ if __name__ == '__main__':
     names_exr = [f for f in os.listdir(args.img_folder) if f.endswith('.exr')]
     names_hdr = sorted(names_mat + names_hdr + names_exr)
 
-    names_jpg = [f for f in os.listdir(args.img_folder) if f.endswith('.jpg')]
-    names_png = [f for f in os.listdir(args.img_folder) if f.endswith('.png')]
-    names_sdr = sorted(names_jpg + names_png)
+    names_jpg = [f for f in os.listdir(args.img_folder) if f.lower().endswith('.jpg')]
+    names_jpeg = [f for f in os.listdir(args.img_folder) if f.lower().endswith('.jpeg')]
+    names_png = [f for f in os.listdir(args.img_folder) if f.lower().endswith('.png')]
+    names_sdr = sorted(names_jpg + names_jpeg + names_png)
     
     names = names_hdr + names_sdr
     

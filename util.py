@@ -17,7 +17,7 @@ import cv2
 
 #read an 8-bit image
 def read_img(fname, grayscale=True):
-    img = Image.open(fname)
+    img = Image.open(fname).convert('RGB')
     img = img.convert('L') if grayscale else img.convert('RGB')
     img_torch = to_tensor(img)
     #if grayscale:
