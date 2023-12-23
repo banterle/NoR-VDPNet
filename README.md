@@ -26,15 +26,22 @@ pip3 install numpy, scipy, matplotlib, glob2, pandas, image, scikit-learn, openc
 HOW TO RUN IT:
 ==============
 To run our metric on a folder of images (i.e., JPEG, PNG, EXR, HDR, and MAT files),
-you need to launch the file ```eval.py```; for example:
+you need to launch the file ```norvdpnet.py```. For example, we want to test SDR images:
 
 ```
-python3 eval.py /home/user00/nor-vdpnet/trainings/ckpt/ /home/user00/images_to_be_tested/
+python3 norvdpnet.py SDR /home/user00/images_to_be_png/
 ```
+
+If we want to test HDR images after JPEG-XT compression:
+
+```
+python3 norvdpnet.py HDR /home/user00/images_to_be_hdr/
+```
+
 
 WEIGHTS DOWNLOAD:
 =================
-There are two different weight sets:
+There are two different weight sets that need to be put in the folder "weights":
 
 norvdpnet_sdr.pth: Weights for SDR distortions that are meant for SDR images (8-bit images: JPEG and PNG); they can be downloaded at this <a href="https://www.dropbox.com/s/kxbdz76spdoidpi/norvdpnet_sdr.pth?dl=0">link</a>.
 
@@ -44,6 +51,7 @@ Note that these weights are meant to model ONLY determined distortions; please s
 
 DO NOT:
 =======
+There are many people use NoR-VDPNet in an appropriate way:
 
 1) Please do not use weights_sdr for HDR images;
 

@@ -11,8 +11,8 @@ from util import load_image
 if __name__ == '__main__':
     
     parser = argparse.ArgumentParser(description='Eval Q regressor', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument('run', type=str, help='Base dir where weights are')
-    parser.add_argument('data', type=str, help='Base dir of run to evaluate')
+    parser.add_argument('mode', type=str, help='SDR or HDR distortions')
+    parser.add_argument('img_folder', type=str, help='Base dir of run to evaluate')
     parser.add_argument('-cs', '--colorspace', type=str, default='REC709', help='Color space of the input images')
     parser.add_argument('--color', type=str, default='gray', help='Enable/Disable color inputs')
 
@@ -20,15 +20,18 @@ if __name__ == '__main__':
     
     bGrayscale = (args.color == 'gray')
         
-    model = QModel(args.run, bGrayscale)
-    
-    names_mat = [f for f in os.listdir(args.data) if f.endswith('.mat')]
-    names_hdr = [f for f in os.listdir(args.data) if f.endswith('.hdr')]
-    names_exr = [f for f in os.listdir(args.data) if f.endswith('.exr')]
+    if mode == 'SDR':
+        model = QModel('weights/norvdpnet_sdr.pth', bGrayscale)
+    elif mode == 'HDR':
+        model = QModel('weights/norvdpnet_hdrc.pth', bGrayscale)
+
+    names_mat = [f for f in os.listdir(args.img_folder) if f.endswith('.mat')]
+    names_hdr = [f for f in os.listdir(args.img_folder) if f.endswith('.hdr')]
+    names_exr = [f for f in os.listdir(args.img_folder) if f.endswith('.exr')]
     names_hdr = sorted(names_mat + names_hdr + names_exr)
 
-    names_jpg = [f for f in os.listdir(args.data) if f.endswith('.jpg')]
-    names_png = [f for f in os.listdir(args.data) if f.endswith('.png')]
+    names_jpg = [f for f in os.listdir(args.img_folder) if f.endswith('.jpg')]
+    names_png = [f for f in os.listdir(args.img_folder) if f.endswith('.png')]
     names_sdr = sorted(names_jpg + names_png)
     
     names = names_hdr + names_sdr
