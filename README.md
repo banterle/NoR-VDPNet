@@ -26,13 +26,14 @@ pip3 install numpy, scipy, matplotlib, glob2, pandas, image, scikit-learn, openc
 HOW TO RUN IT:
 ==============
 To run our metric on a folder of images (i.e., JPEG, PNG, EXR, HDR, and MAT files),
-you need to launch the file ```norvdpnet.py```. For example, we want to test SDR images:
+you need to launch the file ```norvdpnet.py```. For example, you want to test SDR images
+for the trained distortions (see the paper):
 
 ```
 python3 norvdpnet.py SDR /home/user00/images_to_be_png/
 ```
 
-If we want to test HDR images after JPEG-XT compression:
+If you want to test HDR images after JPEG-XT compression:
 
 ```
 python3 norvdpnet.py HDR /home/user00/images_to_be_hdr/
