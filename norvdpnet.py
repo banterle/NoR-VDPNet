@@ -38,7 +38,7 @@ if __name__ == '__main__':
     names = names_hdr + names_sdr
     
     for name in names:
-        stim = load_image(os.path.join(args.img_folder, name), grayscale = bGrayscale, log_range = True, colorspace = args.colorspace)
+        stim = load_image(os.path.join(args.img_folder, name), grayscale = bGrayscale, colorspace = args.colorspace)
         p_model = float(model.predict(stim))
         print(name + " Q: " + str(round(p_model * 10000)/100))
 

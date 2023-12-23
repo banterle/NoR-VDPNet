@@ -17,7 +17,7 @@ import cv2
 
 #read an 8-bit image
 def read_img(fname, grayscale=True):
-    img = Image.open(fname).convert('RGB')
+    img = Image.open(fname)
     img = img.convert('L') if grayscale else img.convert('RGB')
     img_torch = to_tensor(img)
     #if grayscale:
@@ -26,7 +26,7 @@ def read_img(fname, grayscale=True):
         
     #c = T.ToPILImage()
     #c(img_torch).save('test.png')
-    return (img_torch - 0.5) * 2.0
+    return img_torch
 
 #read a HDR image
 def read_hdr(fname,  maxClip = 1e6, grayscale=True, log_range=True, colorspace='REC709'):
@@ -79,15 +79,15 @@ def read_mat(fname,  grayscale=True, log_range=True, colorspace='REC709'):
     return torch.FloatTensor(x)
 
 #read an image
-def load_image(fname, maxClip = 1e6, grayscale=True, log_range=True, colorspace = 'REC709'):
+def load_image(fname, maxClip = 1e6, grayscale=True, colorspace = 'REC709'):
     filename, ext = os.path.splitext(fname)
     ext = ext.lower()
     
     if ext == '.mat':
-       return read_mat(fname, grayscale, log_range)
+       return read_mat(fname, grayscale, True)
     else:
         if (ext == '.exr') or (ext == '.hdr'):
-            return read_hdr(fname, maxClip, grayscale, log_range, colorspace)
+            return read_hdr(fname, maxClip, grayscale, True, colorspace)
         else:
             return read_img(fname, grayscale)
 
