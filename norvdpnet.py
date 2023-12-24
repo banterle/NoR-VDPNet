@@ -3,8 +3,10 @@
 #Licensed under the BSD 3-Clause Clear License (see license.txt)
 #
 
-from QModel import QModel
 import os
+import sys
+
+from QModel import QModel
 import argparse
 from util import load_image
 
@@ -28,6 +30,10 @@ if __name__ == '__main__':
         model = QModel('weights/weights_nor_itmo.pth', bGrayscale)
     elif args.mode == 'SDR_TMO':
         model = QModel('weights/weights_nor_tmo.pth', bGrayscale)
+    else:
+        print('The mode ' + args.mode + ' selected is not supported.')
+        print('Supported modes: HDR_ITMO, HDR_COMP, SDR, and SDR_TMO.')
+        sys.exit()
 
     names_mat = [f for f in os.listdir(args.img_folder) if f.endswith('.mat')]
     names_hdr = [f for f in os.listdir(args.img_folder) if f.endswith('.hdr')]
