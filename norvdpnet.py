@@ -11,7 +11,7 @@ from util import load_image
 if __name__ == '__main__':
     
     parser = argparse.ArgumentParser(description='Eval Q regressor', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument('mode', type=str, help='SDR or HDR distortions')
+    parser.add_argument('mode', type=str, help='HDR_COMP (JPEG-XT compression), HDR_ITMO (inverse tone mapping), SDR (distortions for 8-bit images), and and SDR_TMO (tone mapping distortions).')
     parser.add_argument('img_folder', type=str, help='Base dir of run to evaluate')
     parser.add_argument('-cs', '--colorspace', type=str, default='REC709', help='Color space of the input images')
     parser.add_argument('--color', type=str, default='gray', help='Enable/Disable color inputs')
@@ -21,9 +21,13 @@ if __name__ == '__main__':
     bGrayscale = (args.color == 'gray')
         
     if args.mode == 'SDR':
-        model = QModel('weights/norvdpnet_sdr.pth', bGrayscale)
-    elif args.mode == 'HDR':
-        model = QModel('weights/norvdpnet_hdrc.pth', bGrayscale)
+        model = QModel('weights/weights_nor_sdr.pth', bGrayscale)
+    elif args.mode == 'HDR_COMP':
+        model = QModel('weights/weights_nor_jpg_xt.pth', bGrayscale)
+    elif args.mode == 'HDR_ITMO':
+        model = QModel('weights/weights_nor_itmo.pth', bGrayscale)
+    elif args.mode == 'SDR_TMO':
+        model = QModel('weights/weights_nor_tmo.pth', bGrayscale)
 
     names_mat = [f for f in os.listdir(args.img_folder) if f.endswith('.mat')]
     names_hdr = [f for f in os.listdir(args.img_folder) if f.endswith('.hdr')]

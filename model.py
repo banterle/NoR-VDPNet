@@ -1,64 +1,66 @@
 #
-#Copyright (C) 2020-2021 ISTI-CNR
+#Copyright (C) 2023 ISTI-CNR
 #Licensed under the BSD 3-Clause Clear License (see license.txt)
 #
 
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
+from regressor import *
 
+#
+#
+#
+class BlockQ(nn.Module):
+
+    def __init__(self, in_size, out_size, std = 1):
+        super(BlockQ, self).__init__()
+    
+        self.conv = nn.Sequential(
+                    nn.Conv2d(in_size, out_size, 3, stride = std, padding=1),
+                    nn.ReLU())
+
+    def forward(self, input):
+        return self.conv(input)
+
+#
+#
+#
 class QNet(nn.Module):
 
-    def __init__(self, in_size=1, out_size=1):
+    def __init__(self, in_size=1, out_size=1, params_size = None):
         super(QNet, self).__init__()
 
-        pad = 1
-        std = 1
         self.conv = nn.Sequential(
-            nn.Conv2d(in_size, 32, 3, padding=pad),
-            nn.ReLU(),
-            nn.Conv2d(32, 32, 3, stride=std, padding=pad),
-            nn.ReLU(),
-            nn.MaxPool2d(2),
-            #####################################################
-            nn.Conv2d(32, 64, 3, padding=pad),
-            nn.ReLU(),
-            nn.Conv2d(64, 64, 3, stride=std, padding=pad),
-            nn.ReLU(),
-            nn.MaxPool2d(2),
-            #####################################################
-            nn.Conv2d(64, 128, 3, padding=pad),
-            nn.ReLU(),
-            nn.Conv2d(128, 128, 3, stride=std, padding=pad),
-            nn.ReLU(),
-            nn.MaxPool2d(2),
-            #####################################################
-            nn.Conv2d(128, 256, 3, padding=pad),
-            nn.ReLU(),
-            nn.Conv2d(256, 256, 3, stride=std, padding=pad),
-            nn.ReLU(),
-            nn.MaxPool2d(2),
-            #####################################################
-            nn.Conv2d(256, 512, 3, padding=pad),
-            nn.ReLU(),
-            nn.Conv2d(512, 512, 3, stride=std, padding=pad),
-            nn.ReLU(),
-            nn.MaxPool2d(2)
-        )
+                    BlockQ(in_size, 32),
+                    BlockQ(32, 32),
+                    nn.MaxPool2d(2),
+                                  
+                    BlockQ(32, 64),
+                    BlockQ(64, 64),
+                    nn.MaxPool2d(2),
+                                  
+                    BlockQ(64, 128),
+                    BlockQ(128, 128),
+                    nn.MaxPool2d(2),
+                                  
+                    BlockQ(128, 256),
+                    BlockQ(256, 256),
+                    nn.MaxPool2d(2),
 
-        self.regressor = nn.Sequential(
-            nn.Linear(512, 256),
-            nn.ReLU(),
-            nn.Linear(256, out_size),
-        )
+                    BlockQ(256, 512),
+                    BlockQ(512, 512, 2),
+                    nn.MaxPool2d(2),
+                    )
+ 
+        self.regressor = Regressor(512, out_size, params_size)
 
-    def forward(self, stim):
+    #
+    #
+    #
+    def forward(self, stim, lmax = None):
         features = self.conv(stim)
-        features_pooled = features.mean(-1).mean(-1)
-        q = self.regressor(features_pooled)
-        
-        if not self.training:
-            q = q.clamp(0,1)
-            
+        q = self.regressor(features, lmax)
         return q
 
 if __name__ == '__main__':
