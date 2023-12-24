@@ -31,15 +31,14 @@ def read_img(fname, grayscale=True):
 #read a HDR image
 def read_hdr(fname,  maxClip = 1e6, grayscale=True, log_range=True, colorspace='REC709'):
     img = cv2.imread(fname, cv2.IMREAD_ANYCOLOR | cv2.IMREAD_ANYDEPTH)
-    x = np.array(img, dtype=np.float)
+    x = np.array(img, dtype=np.float32)
     
     #no negative values
     x[x < 0.0] = 0.0
-    #clipping
-    x[x >= maxClip] = maxClip
     #remove NaNs and Infs
-    x[np.isnan(x) == True] = maxClip
-    x[np.isinf(x) == True] = maxClip
+    x_max = np.max(x))
+    x[np.isnan(x) == True] = x_max
+    x[np.isinf(x) == True] = x_max
     
     if grayscale and (x.shape[2] == 3): #REC709 luminance
         if colorspace == 'REC709':
