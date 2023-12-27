@@ -36,7 +36,7 @@ def read_hdr(fname,  maxClip = 1e6, grayscale=True, log_range=True, colorspace='
     #no negative values
     x[x < 0.0] = 0.0
     #remove NaNs and Infs
-    x_max = np.max(x))
+    x_max = np.max(x)
     x[np.isnan(x) == True] = x_max
     x[np.isinf(x) == True] = x_max
     
