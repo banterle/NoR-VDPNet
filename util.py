@@ -29,7 +29,7 @@ def read_img(fname, grayscale=True):
     return img_torch
 
 #read a HDR image
-def read_hdr(fname,  maxClip = 1e6, grayscale=True, log_range=True, colorspace='REC709'):
+def read_hdr(fname,  maxClip = 1e4, grayscale=True, log_range=True, colorspace='REC709', bDisplayreferred = True):
     img = cv2.imread(fname, cv2.IMREAD_ANYCOLOR | cv2.IMREAD_ANYDEPTH)
     x = np.array(img, dtype=np.float32)
     
@@ -51,13 +51,18 @@ def read_hdr(fname,  maxClip = 1e6, grayscale=True, log_range=True, colorspace='
         sz = x.shape
         x = np.reshape(x, (sz[2],sz[0],sz[1]))
 
-    z = torch.FloatTensor(x)  
+    max_x = np.max(x)
+    
+    z = torch.FloatTensor(x)
                         
     if grayscale:
         z = z.unsqueeze(0)
     
     if log_range:
-        z = torch.log10(z + 1.0)
+        if bDisplayreferred:
+            z = (z * maxClip) / max_x
+            
+        z = torch.log(z + 1.0) / np.log(maxClip)
         
     return z
 
@@ -78,7 +83,7 @@ def read_mat(fname,  grayscale=True, log_range=True, colorspace='REC709'):
     return torch.FloatTensor(x)
 
 #read an image
-def load_image(fname, maxClip = 1e6, grayscale=True, colorspace = 'REC709'):
+def load_image(fname, maxClip = 1e6, grayscale=True, colorspace = 'REC709', bDisplayreferred = True):
     filename, ext = os.path.splitext(fname)
     ext = ext.lower()
     
@@ -86,7 +91,7 @@ def load_image(fname, maxClip = 1e6, grayscale=True, colorspace = 'REC709'):
        return read_mat(fname, grayscale, True)
     else:
         if (ext == '.exr') or (ext == '.hdr'):
-            return read_hdr(fname, maxClip, grayscale, True, colorspace)
+            return read_hdr(fname, maxClip, grayscale, True, colorspace, bDisplayreferred)
         else:
             return read_img(fname, grayscale)
 

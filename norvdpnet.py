@@ -15,6 +15,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Eval Q regressor', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('mode', type=str, help='HDR_COMP (JPEG-XT compression), HDR_ITMO (inverse tone mapping), SDR (distortions for 8-bit images), and and SDR_TMO (tone mapping distortions).')
     parser.add_argument('img_folder', type=str, help='Base dir of run to evaluate')
+    parser.add_argument('-dr', '--displayreferred', type=str, default='yes', help='Do we need to apply the display? (yes/no)')
     parser.add_argument('-cs', '--colorspace', type=str, default='REC709', help='Color space of the input images')
     parser.add_argument('--color', type=str, default='gray', help='Enable/Disable color inputs')
 
@@ -47,8 +48,10 @@ if __name__ == '__main__':
     
     names = names_hdr + names_sdr
     
+    bDisplay_referred = (args.displayreferred == 'yes')
     for name in names:
-        stim = load_image(os.path.join(args.img_folder, name), grayscale = bGrayscale, colorspace = args.colorspace)
+    
+        stim = load_image(os.path.join(args.img_folder, name), grayscale = bGrayscale, colorspace = args.colorspace, bDisplayreferred = bDisplay_referred)
         p_model = float(model.predict(stim))
         print(name + " Q: " + str(round(p_model * 10000)/100))
 

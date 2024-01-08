@@ -110,7 +110,7 @@ class HdrVdpDataset(Dataset):
         full_name = os.path.join(self.base_dir, sample.Distorted)
 
         #print(full_name)
-        stim = load_image(full_name, grayscale = self.bGrayscale, colorspace = self.colorspace)
+        stim = load_image(full_name, maxClip = sample.Lmax, grayscale = self.bGrayscale, colorspace = self.colorspace)
         
         if self.group != None:
             if self.groupaffine > 1:
