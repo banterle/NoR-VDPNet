@@ -130,6 +130,7 @@ If you use NoR-VDPNet in your work, please cite it using this reference:
 ```
 @inproceedings{Banterle+2020,
 author       = "Banterle, Francesco and Artusi, Alessandro and Moreo, Alejandro and Carrara, Fabio",
+title        = "Nor-Vdpnet: A No-Reference High Dynamic Range Quality Metric Trained On Hdr-Vdp 2",
 booktitle    = "IEEE International Conference on Image Processing (ICIP)",
 month        = "October",
 year         = "2020",
