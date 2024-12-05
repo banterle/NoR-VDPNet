@@ -238,6 +238,7 @@ if __name__ == '__main__':
                 'mse_val': val_loss,
                 'mse_test': test_loss,
                 'model': model.state_dict(),
+                'optimizer': optimizer.state_dict(),
                 'colorspace': args.colorspace,
                 'color': args.color,
                 'lmax': args.lmax,
