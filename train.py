@@ -21,6 +21,12 @@ from model import QNet
 import glob2
 import re
 
+#loss function
+def loss_f(x, y, bSigmoid = True):
+    if bSigmoid:
+        return F.l1_loss(x,y)
+    else:
+        return F.mse_loss(x,y)
 
 #traing for a single epoch
 def train(loader, model, optimizer, args):
@@ -37,7 +43,7 @@ def train(loader, model, optimizer, args):
                             
                         
         q_hat = model(stim)
-        loss = F.l1_loss(q_hat, q)
+        loss = loss_f(q_hat, q, args.sigmoid == 1)
         
         optimizer.zero_grad()
         loss.backward()
@@ -68,8 +74,8 @@ def eval(loader, model, args):
                 q = q.cuda()
 
             q_hat = model(stim)
-            loss = F.l1_loss(q_hat, q)
-            
+            loss = loss_f(q_hat, q, args.sigmoid)
+
             total_loss += loss.item()
                         
             targets.append(q)
@@ -100,6 +106,7 @@ if __name__ == '__main__':
     parser.add_argument('-cs', '--colorspace', type=str, default='REC709', help='Color space of the input images')
     parser.add_argument('--color', type=str, default='gray', help='Enable/Disable color inputs')
     parser.add_argument('--lmax', type=float, default=-1.0, help='Monitor max luminance output')
+    parser.add_argument('--sigmoid', type=int, default=1, help='Sigmoid last layer')
 
     args = parser.parse_args()
 
@@ -231,7 +238,10 @@ if __name__ == '__main__':
                 'mse_val': val_loss,
                 'mse_test': test_loss,
                 'model': model.state_dict(),
-                'optimizer': optimizer.state_dict()
+                'colorspace': args.colorspace,
+                'color': args.color,
+                'lmax': args.lmax,
+                'sigmoid': args.sigmoid
             }, ckpt)
 
         scheduler.step(val_loss)
