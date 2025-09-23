@@ -6,8 +6,7 @@
 import os
 import sys
 import argparse
-from model import NoRVDPNetPPModel
-from util import read_img_cv2
+from QModel import QModel
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='NoR-VDPNet', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
@@ -18,7 +17,7 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
         
-    model = NoRVDPNetPPModel(args.mode, colorspace = args.colorspace, display_referred = args.display_referred)
+    model = QModel(args.mode, colorspace = args.colorspace, display_referred = args.display_referred)
         
     if (args.mode != 'SDR') and (args.mode != 'HDR_COMP') and (args.mode != 'HDR_ITMO') and (args.mode != 'SDR_TMO'):
         print('The mode ' + args.mode + ' selected is not supported.')

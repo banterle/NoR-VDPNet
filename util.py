@@ -10,12 +10,13 @@ import torch
 from scipy.io import loadmat
 from PIL import Image
 import numpy as np
-import skimage.transform as st
 from torchvision.transforms.functional import to_tensor
 import torchvision.transforms as T
 import cv2
 
+#
 #read an 8-bit image
+#
 def read_img(fname, grayscale=True):
     img = Image.open(fname)
     img = img.convert('L') if grayscale else img.convert('RGB')
@@ -28,7 +29,9 @@ def read_img(fname, grayscale=True):
     #c(img_torch).save('test.png')
     return img_torch
 
+#
 #read a HDR image
+#
 def read_hdr(fname,  maxClip = 1e4, grayscale=True, log_range=True, colorspace='REC709', bDisplayreferred = True):
     img = cv2.imread(fname, cv2.IMREAD_ANYCOLOR | cv2.IMREAD_ANYDEPTH)
     x = np.array(img, dtype=np.float32)
@@ -83,7 +86,7 @@ def read_mat(fname,  grayscale=True, log_range=True, colorspace='REC709'):
     return torch.FloatTensor(x)
 
 #read an image
-def load_image(fname, maxClip = 1e6, grayscale=True, colorspace = 'REC709', bDisplayreferred = True):
+def load_image(fname, maxClip = 1400, grayscale=True, colorspace = 'REC709', bDisplayreferred = True):
     filename, ext = os.path.splitext(fname)
     ext = ext.lower()
     
@@ -94,29 +97,6 @@ def load_image(fname, maxClip = 1e6, grayscale=True, colorspace = 'REC709', bDis
             return read_hdr(fname, maxClip, grayscale, True, colorspace, bDisplayreferred)
         else:
             return read_img(fname, grayscale)
-
-#data augmentation
-def dataAugmentation_np(img, j):
-    out = img.copy()
-    jn = j % 7
-    
-    if (jn == 1):
-        out = st.rotate(out, 90)
-    elif (j == 2):
-        out = st.rotate(out, 180)
-    elif (jn == 3):
-        out = st.rotate(out, 270)
-    elif (jn == 4):
-        out = np.fliplr(out)
-        out = out.copy()
-    elif (jn == 5):
-        out = st.rotate(out, 90)
-        out = np.fliplr(out)
-        out = out.copy()
-    elif (jn == 6):
-        out = np.flipud(out)
-        out = out.copy()
-    return out
     
 #
 #

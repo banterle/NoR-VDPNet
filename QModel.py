@@ -18,7 +18,7 @@ class QModel:
     #
     #
     #
-    def __init__(self, run, btype = 2, maxClip = 1400, grayscale = True, colorspace = 'REC709', display_referred = 'yes'):
+    def __init__(self, run, maxClip = 1400, grayscale = True, colorspace = 'REC709', display_referred = 'yes'):
         url_str = 'http://www.banterle.com/francesco/projects/norvdpnet/'
         
         bDone = False
@@ -26,39 +26,39 @@ class QModel:
         args_mode = run
         if args_mode == 'SDR':
             try:
-                model = self.setup_aux('weights/norvdpnet_sdr.pth', maxClip, btype, grayscale, colorspace, display_referred)
+                model = self.setup_aux('weights/norvdpnet_sdr.pth', maxClip, grayscale, colorspace, display_referred)
             except:
-                model = self.setup_aux(url_str + 'norvdpnet_sdr.pth', maxClip, btype, grayscale, colorspace, display_referred)
+                model = self.setup_aux(url_str + 'norvdpnet_sdr.pth', maxClip, grayscale, colorspace, display_referred)
             bDone = True
 
         if args_mode == 'HDR_COMP':
             try:
-                model = self.setup_aux('weights/norvdpnet_hdrc.pth', maxClip, btype, grayscale, colorspace, display_referred)
+                model = self.setup_aux('weights/norvdpnet_hdrc.pth', maxClip, grayscale, colorspace, display_referred)
             except:
-                model = self.setup_aux(url_str + 'norvdpnet_hdrc.pth', maxClip, btype, grayscale, colorspace, display_referred)
+                model = self.setup_aux(url_str + 'norvdpnet_hdrc.pth', maxClip, grayscale, colorspace, display_referred)
             bDone = True
 
         if args_mode == 'HDR_ITMO':
             try:
-                model = self.setup_aux('weights/norvdpnet_itmo.pth', maxClip, btype, grayscale, colorspace, display_referred)
+                model = self.setup_aux('weights/norvdpnet_itmo.pth', maxClip, grayscale, colorspace, display_referred)
             except:
-                model = self.setup_aux(url_str + 'norvdpnet_itmo.pth', maxClip, btype, grayscale, colorspace, display_referred)
+                model = self.setup_aux(url_str + 'norvdpnet_itmo.pth', maxClip, grayscale, colorspace, display_referred)
             bDone = True
 
         if args_mode == 'SDR_TMO':
             try:
-                model = self.setup_aux('weights/norvdpnet_tmo.pth', maxClip, btype, grayscale, colorspace, display_referred)
+                model = self.setup_aux('weights/norvdpnet_tmo.pth', maxClip, grayscale, colorspace, display_referred)
             except:
-                model = self.setup_aux(url_str + 'norvdpnet_tmo.pth', maxClip, btype, grayscale, colorspace, display_referred)
+                model = self.setup_aux(url_str + 'norvdpnet_tmo.pth', maxClip, grayscale, colorspace, display_referred)
             bDone = True
             
         if bDone == False:
-            self.setup_aux(run, btype, maxClip, grayscale, colorspace, display_referred)
+            self.setup_aux(run, maxClip, grayscale, colorspace, display_referred)
     
     #
     #
     #
-    def setup_aux(self, run, btype = 2, maxClip = 1400, grayscale = True, colorspace = 'REC709', display_referred = 'yes'):
+    def setup_aux(self, run, maxClip = 1400, grayscale = True, colorspace = 'REC709', display_referred = 'yes'):
         self.run = run
         ext = os.path.splitext(run)[1]
         
@@ -139,7 +139,7 @@ class QModel:
     #
     #
     def predict(self, fn):
-        stim = read_img_cv2(fn, maxClip = self.maxClip, grayscale = self.grayscale, colorspace = self.colorspace, display_referred = self.display_referred)
+        stim = load_image(fn, maxClip = self.maxClip, grayscale = self.grayscale, colorspace = self.colorspace, display_referred = self.display_referred)
         stim = stim.unsqueeze(0)
 
         if torch.cuda.is_available():
