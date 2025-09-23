@@ -7,7 +7,9 @@ import os
 import re
 import glob2
 import torch
+import urllib.request
 
+from util import load_image
 from model import QNet
 
 #
@@ -139,7 +141,7 @@ class QModel:
     #
     #
     def predict(self, fn):
-        stim = load_image(fn, maxClip = self.maxClip, grayscale = self.grayscale, colorspace = self.colorspace, display_referred = self.display_referred)
+        stim = load_image(fn, maxClip = self.maxClip, grayscale = self.grayscale, colorspace = self.colorspace, bDisplayreferred = self.display_referred)
         stim = stim.unsqueeze(0)
 
         if torch.cuda.is_available():
