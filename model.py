@@ -99,7 +99,7 @@ class QNet(nn.Module):
                     nn.MaxPool2d(2),
                     )
  
-        self.regressor = Regressor(512, out_size, params_size)
+        self.regressor = Regressor(512, out_size, params_size, bSigmoid = False)
 
     #
     #
@@ -107,6 +107,10 @@ class QNet(nn.Module):
     def forward(self, stim, lmax = None):
         features = self.conv(stim)
         q = self.regressor(features, lmax)
+
+        if not self.training:
+            q = q.clamp(0,1)
+
         return q
 
 if __name__ == '__main__':

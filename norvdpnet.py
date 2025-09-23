@@ -1,37 +1,26 @@
 #
-#Copyright (C) 2020-2021 ISTI-CNR
+#Copyright (C) 2023 ISTI-CNR
 #Licensed under the BSD 3-Clause Clear License (see license.txt)
 #
 
 import os
 import sys
-
-from QModel import QModel
 import argparse
-from util import load_image
+from model import NoRVDPNetPPModel
+from util import read_img_cv2
 
 if __name__ == '__main__':
-    
-    parser = argparse.ArgumentParser(description='Eval Q regressor', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser = argparse.ArgumentParser(description='NoR-VDPNet', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('mode', type=str, help='HDR_COMP (JPEG-XT compression), HDR_ITMO (inverse tone mapping), SDR (distortions for 8-bit images), and and SDR_TMO (tone mapping distortions).')
     parser.add_argument('img_folder', type=str, help='Base dir of run to evaluate')
-    parser.add_argument('-dr', '--displayreferred', type=str, default='yes', help='Do we need to apply the display? (yes/no)')
+    parser.add_argument('-dr', '--display_referred', type=str, default='yes', help='Do we need to apply the display? (yes/no)')
     parser.add_argument('-cs', '--colorspace', type=str, default='REC709', help='Color space of the input images')
-    parser.add_argument('--color', type=str, default='gray', help='Enable/Disable color inputs')
 
     args = parser.parse_args()
-    
-    bGrayscale = (args.color == 'gray')
         
-    if args.mode == 'SDR':
-        model = QModel('weights/weights_nor_sdr.pth', bGrayscale)
-    elif args.mode == 'HDR_COMP':
-        model = QModel('weights/weights_nor_jpg_xt.pth', bGrayscale)
-    elif args.mode == 'HDR_ITMO':
-        model = QModel('weights/weights_nor_itmo.pth', bGrayscale)
-    elif args.mode == 'SDR_TMO':
-        model = QModel('weights/weights_nor_tmo.pth', bGrayscale)
-    else:
+    model = NoRVDPNetPPModel(args.mode, colorspace = args.colorspace, display_referred = args.display_referred)
+        
+    if (args.mode != 'SDR') and (args.mode != 'HDR_COMP') and (args.mode != 'HDR_ITMO') and (args.mode != 'SDR_TMO'):
         print('The mode ' + args.mode + ' selected is not supported.')
         print('Supported modes: HDR_ITMO, HDR_COMP, SDR, and SDR_TMO.')
         sys.exit()
@@ -48,11 +37,9 @@ if __name__ == '__main__':
     
     names = names_hdr + names_sdr
     
-    bDisplay_referred = (args.displayreferred == 'yes')
     for name in names:
-    
-        stim = load_image(os.path.join(args.img_folder, name), grayscale = bGrayscale, colorspace = args.colorspace, bDisplayreferred = bDisplay_referred)
-        p_model = float(model.predict(stim))
+        fn = os.path.join(args.img_folder, name)
+        p_model = float(model.predict(fn))
         print(name + " Q: " + str(round(p_model * 10000)/100))
 
     del model
