@@ -54,7 +54,13 @@ python3 norvdpnet.py HDR_ITMO /home/user00/images_to_be_hdr/
 
 WEIGHTS DOWNLOAD:
 =================
-Weights can be downloaded at this <a href="https://www.banterle.com/francesco/projects/norvdpnet/weights.zip">link</a>.
+WEIGHTS DOWNLOAD:
+=================
+Weights can be downloaded here (or automatically using ```norvdpnegt.py``` having a connection):
+<a href="http://www.banterle.com/francesco/projects/norvdpnet/norvdpnet_sdr.pth">SDR</a>, 
+<a href="http://www.banterle.com/francesco/projects/norvdpnet/norvdpnet_hdrc.pth">HDRC</a>,
+<a href="http://www.banterle.com/francesco/projects/norvdpnet/norvdpnet_tmo.pth">TMO</a>, and
+<a href="http://www.banterle.com/francesco/projects/norvdpnet/norvdpnet_itmo.pth">ITMO</a>.
 
 Note that these weights are meant to model ONLY determined distortions; please see reference to have a complete overview.
 
