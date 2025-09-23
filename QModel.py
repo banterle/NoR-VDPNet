@@ -26,30 +26,30 @@ class QModel:
         args_mode = run
         if args_mode == 'SDR':
             try:
-                model = self.setup_aux('weights/norvdpnetpp_sdr.pth', maxClip, btype, grayscale, colorspace, display_referred)
+                model = self.setup_aux('weights/norvdpnet_sdr.pth', maxClip, btype, grayscale, colorspace, display_referred)
             except:
-                model = self.setup_aux(url_str + 'norvdpnetpp_sdr.pth', maxClip, btype, grayscale, colorspace, display_referred)
+                model = self.setup_aux(url_str + 'norvdpnet_sdr.pth', maxClip, btype, grayscale, colorspace, display_referred)
             bDone = True
 
         if args_mode == 'HDR_COMP':
             try:
-                model = self.setup_aux('weights/norvdpnetpp_hdrc.pth', maxClip, btype, grayscale, colorspace, display_referred)
+                model = self.setup_aux('weights/norvdpnet_hdrc.pth', maxClip, btype, grayscale, colorspace, display_referred)
             except:
-                model = self.setup_aux(url_str + 'norvdpnetpp_hdrc.pth', maxClip, btype, grayscale, colorspace, display_referred)
+                model = self.setup_aux(url_str + 'norvdpnet_hdrc.pth', maxClip, btype, grayscale, colorspace, display_referred)
             bDone = True
 
         if args_mode == 'HDR_ITMO':
             try:
-                model = self.setup_aux('weights/norvdpnetpp_itmo.pth', maxClip, btype, grayscale, colorspace, display_referred)
+                model = self.setup_aux('weights/norvdpnet_itmo.pth', maxClip, btype, grayscale, colorspace, display_referred)
             except:
-                model = self.setup_aux(url_str + 'norvdpnetpp_itmo.pth', maxClip, btype, grayscale, colorspace, display_referred)
+                model = self.setup_aux(url_str + 'norvdpnet_itmo.pth', maxClip, btype, grayscale, colorspace, display_referred)
             bDone = True
 
         if args_mode == 'SDR_TMO':
             try:
-                model = self.setup_aux('weights/norvdpnetpp_tmo.pth', maxClip, btype, grayscale, colorspace, display_referred)
+                model = self.setup_aux('weights/norvdpnet_tmo.pth', maxClip, btype, grayscale, colorspace, display_referred)
             except:
-                model = self.setup_aux(url_str + 'norvdpnetpp_tmo.pth', maxClip, btype, grayscale, colorspace, display_referred)
+                model = self.setup_aux(url_str + 'norvdpnet_tmo.pth', maxClip, btype, grayscale, colorspace, display_referred)
             bDone = True
             
         if bDone == False:
