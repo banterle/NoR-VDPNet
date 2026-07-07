@@ -4,7 +4,7 @@ opencv-python==4.6.0
 Pillow==9.2.0
 numpy==1.26.4
 pandas==2.2.2
-seaboarn==0.13.2
+seaborn==0.13.2
 tqdm==4.66.5
 matplotlib==3.9.1
 scikit-image==0.24.0
